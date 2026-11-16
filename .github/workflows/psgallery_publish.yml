@@ -79,5 +79,10 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           if (-not $env:POWERSHELL_GALLERY_API_KEY) { throw 'POWERSHELL_GALLERY_API_KEY is not set in the powershellgallery environment' }
+          # Publish-PSResource runs Test-ModuleManifest, which needs every RequiredModules entry installed
+          # locally. Download (never build or run) the declared dependencies from the Gallery first.
+          foreach ($dep in (Import-PowerShellDataFile ./module/NativeHTMLKit.UI/NativeHTMLKit.UI.psd1).RequiredModules) {
+            Install-PSResource -Name $dep.ModuleName -Version "[$($dep.ModuleVersion),)" -Repository PSGallery -TrustRepository -Scope CurrentUser
+          }
           Publish-PSResource -Path ./module/NativeHTMLKit.UI -Repository PSGallery -ApiKey $env:POWERSHELL_GALLERY_API_KEY
           "Published."
