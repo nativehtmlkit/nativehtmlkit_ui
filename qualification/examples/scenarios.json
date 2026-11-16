@@ -1,0 +1,1266 @@
+{
+ "counter": {
+  "py": [
+   {
+    "op": "expect_text",
+    "contains": [
+     "NativeHTMLKit: 0 clicks",
+     "Ready"
+    ]
+   },
+   {
+    "op": "click",
+    "label": "Increment"
+   },
+   {
+    "op": "click",
+    "label": "Increment"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "NativeHTMLKit: 2 clicks",
+     "Count became 2",
+     "Native reactive updates: 2"
+    ]
+   },
+   {
+    "op": "type",
+    "label": "Your name",
+    "value": "Ada"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Ada: 2 clicks"
+    ]
+   },
+   {
+    "op": "check",
+    "label": "Show recent events",
+    "value": false
+   },
+   {
+    "op": "expect_text",
+    "contains": [],
+    "absent": [
+     "Count became 2"
+    ]
+   },
+   {
+    "op": "click",
+    "label": "Reset"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Ada: 0 clicks"
+    ]
+   }
+  ],
+  "ps": [
+   {
+    "op": "expect_text",
+    "contains": [
+     "NativeHTMLKit: 0 clicks",
+     "Ready"
+    ]
+   },
+   {
+    "op": "click",
+    "label": "Increment"
+   },
+   {
+    "op": "click",
+    "label": "Increment"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "NativeHTMLKit: 2 clicks",
+     "Count became 2"
+    ]
+   },
+   {
+    "op": "type",
+    "label": "Your name",
+    "value": "Ada"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Ada: 2 clicks"
+    ]
+   },
+   {
+    "op": "check",
+    "label": "Show events",
+    "value": false
+   },
+   {
+    "op": "expect_text",
+    "contains": [],
+    "absent": [
+     "Count became 2"
+    ]
+   }
+  ]
+ },
+ "background": {
+  "py": [
+   {
+    "op": "expect_text",
+    "contains": [
+     "Idle"
+    ]
+   },
+   {
+    "op": "click",
+    "label": "Calculate"
+   },
+   {
+    "op": "wait_text",
+    "contains": [
+     "Done: 124999750000"
+    ],
+    "timeout": 30
+   },
+   {
+    "op": "expect_disabled",
+    "label": "Calculate",
+    "value": false
+   }
+  ],
+  "ps": [
+   {
+    "op": "expect_text",
+    "contains": [
+     "Idle"
+    ]
+   },
+   {
+    "op": "click",
+    "label": "Calculate"
+   },
+   {
+    "op": "wait_text",
+    "contains": [
+     "Done: 124999750000"
+    ],
+    "timeout": 30
+   },
+   {
+    "op": "expect_disabled",
+    "label": "Calculate",
+    "value": false
+   },
+   {
+    "op": "click",
+    "label": "Calculate"
+   },
+   {
+    "op": "click",
+    "label": "Cancel"
+   },
+   {
+    "op": "wait_text",
+    "contains": [
+     "Failed: OperationCanceledException"
+    ],
+    "timeout": 30
+   },
+   {
+    "op": "expect_disabled",
+    "label": "Calculate",
+    "value": false
+   }
+  ]
+ },
+ "expenses": {
+  "steps": [
+   {
+    "op": "expect_text",
+    "contains": [
+     "Total: 0.00",
+     "No expenses to show yet.",
+     "0 of 0 expenses"
+    ]
+   },
+   {
+    "op": "expect_disabled",
+    "label": "Add expense",
+    "value": true
+   },
+   {
+    "op": "type",
+    "label": "Description",
+    "value": "Coffee"
+   },
+   {
+    "op": "type",
+    "label": "Amount",
+    "value": "abc"
+   },
+   {
+    "op": "click",
+    "label": "Add expense"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Amount must be a number"
+    ]
+   },
+   {
+    "op": "type",
+    "label": "Amount",
+    "value": "3.50"
+   },
+   {
+    "op": "click",
+    "label": "Add expense"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Coffee (Food): 3.50",
+     "Total: 3.50"
+    ],
+    "absent": [
+     "Amount must be"
+    ]
+   },
+   {
+    "op": "expect_value",
+    "label": "Description",
+    "value": ""
+   },
+   {
+    "op": "expect_value",
+    "label": "Amount",
+    "value": ""
+   },
+   {
+    "op": "type",
+    "label": "Description",
+    "value": "Train ticket"
+   },
+   {
+    "op": "type",
+    "label": "Amount",
+    "value": "12"
+   },
+   {
+    "op": "choose",
+    "label": "Category",
+    "value": "transport"
+   },
+   {
+    "op": "click",
+    "label": "Add expense"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Total: 15.50",
+     "2 of 2 expenses",
+     "Food: 3.50 | Transport: 12.00"
+    ]
+   },
+   {
+    "op": "choose",
+    "label": "Show",
+    "value": "transport"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Total: 12.00",
+     "1 of 2 expenses"
+    ],
+    "absent": [
+     "Coffee (Food)"
+    ]
+   },
+   {
+    "op": "click",
+    "label": "Remove last"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Total: 0.00",
+     "0 of 1 expenses",
+     "No expenses to show yet."
+    ]
+   },
+   {
+    "op": "choose",
+    "label": "Show",
+    "value": "all"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Total: 3.50",
+     "Coffee (Food): 3.50"
+    ]
+   }
+  ]
+ },
+ "todo": {
+  "steps": [
+   {
+    "op": "expect_text",
+    "contains": [
+     "Nothing here.",
+     "0 open, 0 done"
+    ]
+   },
+   {
+    "op": "expect_disabled",
+    "label": "Add",
+    "value": true
+   },
+   {
+    "op": "type",
+    "label": "New task",
+    "value": "Buy milk"
+   },
+   {
+    "op": "click",
+    "label": "Add"
+   },
+   {
+    "op": "type",
+    "label": "New task",
+    "value": "Call Ada"
+   },
+   {
+    "op": "click",
+    "label": "Add"
+   },
+   {
+    "op": "type",
+    "label": "New task",
+    "value": "Ship release"
+   },
+   {
+    "op": "click",
+    "label": "Add"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "[ ] Buy milk",
+     "[ ] Call Ada",
+     "[ ] Ship release",
+     "3 open, 0 done"
+    ],
+    "absent": [
+     "Nothing here."
+    ]
+   },
+   {
+    "op": "click",
+    "label": "Done",
+    "nth": 1
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "[x] Call Ada",
+     "2 open, 1 done"
+    ]
+   },
+   {
+    "op": "choose",
+    "label": "Show",
+    "value": "done"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "[x] Call Ada"
+    ],
+    "absent": [
+     "Buy milk"
+    ]
+   },
+   {
+    "op": "choose",
+    "label": "Show",
+    "value": "open"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "[ ] Buy milk",
+     "[ ] Ship release"
+    ],
+    "absent": [
+     "Call Ada"
+    ]
+   },
+   {
+    "op": "click",
+    "label": "Remove",
+    "nth": 0
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "[ ] Ship release",
+     "1 open, 1 done"
+    ],
+    "absent": [
+     "Buy milk"
+    ]
+   },
+   {
+    "op": "choose",
+    "label": "Show",
+    "value": "all"
+   },
+   {
+    "op": "click",
+    "label": "Clear done"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "[ ] Ship release",
+     "1 open, 0 done"
+    ],
+    "absent": [
+     "Call Ada"
+    ]
+   }
+  ]
+ },
+ "signup_form": {
+  "steps": [
+   {
+    "op": "expect_disabled",
+    "label": "Create account",
+    "value": true
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Fill in every field"
+    ]
+   },
+   {
+    "op": "type",
+    "label": "Name",
+    "value": "Ada Lovelace"
+   },
+   {
+    "op": "type",
+    "label": "Email",
+    "value": "ada@example"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Enter a valid email address."
+    ]
+   },
+   {
+    "op": "type",
+    "label": "Email",
+    "value": "ada@example.org"
+   },
+   {
+    "op": "type",
+    "label": "Password",
+    "value": "correct horse"
+   },
+   {
+    "op": "type",
+    "label": "Confirm password",
+    "value": "correct hors"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Passwords do not match."
+    ],
+    "absent": [
+     "valid email"
+    ]
+   },
+   {
+    "op": "type",
+    "label": "Confirm password",
+    "value": "correct horse"
+   },
+   {
+    "op": "type",
+    "label": "Age",
+    "value": "12"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Age must be a whole number"
+    ]
+   },
+   {
+    "op": "type",
+    "label": "Age",
+    "value": "36"
+   },
+   {
+    "op": "choose",
+    "label": "Plan",
+    "value": "team"
+   },
+   {
+    "op": "check",
+    "label": "I accept the terms of service",
+    "value": true
+   },
+   {
+    "op": "expect_disabled",
+    "label": "Create account",
+    "value": false
+   },
+   {
+    "op": "expect_text",
+    "contains": [],
+    "absent": [
+     "Passwords do not match.",
+     "Age must be",
+     "Fill in every field"
+    ]
+   },
+   {
+    "op": "click",
+    "label": "Create account"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Welcome, Ada Lovelace! Your Team account is ready."
+    ],
+    "absent": [
+     "Confirm password"
+    ]
+   },
+   {
+    "op": "click",
+    "label": "Start over"
+   },
+   {
+    "op": "expect_value",
+    "label": "Name",
+    "value": ""
+   },
+   {
+    "op": "expect_value",
+    "label": "Plan",
+    "value": "free"
+   },
+   {
+    "op": "expect_value",
+    "label": "I accept the terms of service",
+    "checked": false
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Confirm password"
+    ],
+    "absent": [
+     "Welcome"
+    ]
+   }
+  ]
+ },
+ "settings": {
+  "steps": [
+   {
+    "op": "expect_text",
+    "contains": [
+     "All changes saved",
+     "Loaded defaults."
+    ]
+   },
+   {
+    "op": "expect_disabled",
+    "label": "Save",
+    "value": true
+   },
+   {
+    "op": "expect_disabled",
+    "label": "Revert",
+    "value": true
+   },
+   {
+    "op": "type",
+    "label": "Display name",
+    "value": "Grace"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Unsaved changes"
+    ]
+   },
+   {
+    "op": "expect_disabled",
+    "label": "Save",
+    "value": false
+   },
+   {
+    "op": "choose",
+    "label": "Font size",
+    "value": "16"
+   },
+   {
+    "op": "check",
+    "label": "Save documents automatically",
+    "value": false
+   },
+   {
+    "op": "expect_text",
+    "contains": [],
+    "absent": [
+     "Autosave every"
+    ]
+   },
+   {
+    "op": "click",
+    "label": "Save"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "All changes saved",
+     "Saved at"
+    ]
+   },
+   {
+    "op": "expect_disabled",
+    "label": "Save",
+    "value": true
+   },
+   {
+    "op": "type",
+    "label": "Display name",
+    "value": "Hopper"
+   },
+   {
+    "op": "click",
+    "label": "Revert"
+   },
+   {
+    "op": "expect_value",
+    "label": "Display name",
+    "value": "Grace"
+   },
+   {
+    "op": "expect_value",
+    "label": "Font size",
+    "value": "16"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Reverted to the last saved settings."
+    ]
+   },
+   {
+    "op": "click",
+    "label": "Restore defaults"
+   },
+   {
+    "op": "expect_value",
+    "label": "Display name",
+    "value": ""
+   },
+   {
+    "op": "expect_value",
+    "label": "Font size",
+    "value": "14"
+   },
+   {
+    "op": "expect_value",
+    "label": "Save documents automatically",
+    "checked": true
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Unsaved changes",
+     "Autosave every"
+    ]
+   },
+   {
+    "op": "type",
+    "label": "Autosave every (minutes)",
+    "value": "0"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Use a whole number"
+    ]
+   },
+   {
+    "op": "expect_disabled",
+    "label": "Save",
+    "value": true
+   }
+  ]
+ },
+ "log_viewer": {
+  "steps": [
+   {
+    "op": "wait_text",
+    "contains": [
+     "#00008"
+    ],
+    "timeout": 15
+   },
+   {
+    "op": "choose",
+    "label": "Level",
+    "value": "ERROR"
+   },
+   {
+    "op": "wait_text",
+    "contains": [
+     "#00011"
+    ],
+    "timeout": 15,
+    "absent": [
+     "INFO  ",
+     "WARN  "
+    ]
+   },
+   {
+    "op": "choose",
+    "label": "Level",
+    "value": "all"
+   },
+   {
+    "op": "click",
+    "label": "Pause"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Paused:"
+    ]
+   },
+   {
+    "op": "sleep",
+    "seconds": 1.0
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Paused: "
+    ]
+   },
+   {
+    "op": "click",
+    "label": "Pause"
+   },
+   {
+    "op": "expect_text",
+    "contains": [],
+    "absent": [
+     "Paused:"
+    ]
+   },
+   {
+    "op": "type",
+    "label": "Contains",
+    "value": "cache"
+   },
+   {
+    "op": "wait_text",
+    "contains": [
+     "cache refreshed"
+    ],
+    "timeout": 15,
+    "absent": [
+     "user signed in"
+    ]
+   },
+   {
+    "op": "type",
+    "label": "Contains",
+    "value": "no such text"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "No matching lines."
+    ]
+   },
+   {
+    "op": "click",
+    "label": "Clear"
+   },
+   {
+    "op": "type",
+    "label": "Contains",
+    "value": ""
+   },
+   {
+    "op": "wait_text",
+    "contains": [
+     "#0"
+    ],
+    "timeout": 15
+   }
+  ]
+ },
+ "clipboard_tool": {
+  "steps": [
+   {
+    "op": "expect_text",
+    "contains": [
+     "(empty)"
+    ]
+   },
+   {
+    "op": "expect_disabled",
+    "label": "Copy result",
+    "value": true
+   },
+   {
+    "op": "type",
+    "label": "Text",
+    "value": "hello wide world"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Hello Wide World",
+     "16 characters"
+    ]
+   },
+   {
+    "op": "choose",
+    "label": "Transform",
+    "value": "slug"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "hello-wide-world"
+    ]
+   },
+   {
+    "op": "choose",
+    "label": "Transform",
+    "value": "reverse"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "world wide hello"
+    ]
+   },
+   {
+    "op": "click",
+    "label": "Copy result"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Clipboard unavailable"
+    ]
+   },
+   {
+    "op": "click",
+    "label": "Paste"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Clipboard unavailable"
+    ]
+   }
+  ]
+ },
+ "file_picker": {
+  "steps": [
+   {
+    "op": "expect_text",
+    "contains": [
+     "Choose one or more files"
+    ]
+   },
+   {
+    "op": "expect_disabled",
+    "label": "Clear",
+    "value": true
+   },
+   {
+    "op": "click",
+    "label": "Choose files..."
+   },
+   {
+    "op": "wait_text",
+    "contains": [
+     "File dialogs are unavailable here"
+    ],
+    "timeout": 15
+   },
+   {
+    "op": "expect_disabled",
+    "label": "Choose files...",
+    "value": false
+   }
+  ]
+ },
+ "multi_window": {
+  "steps": [
+   {
+    "op": "expect_text",
+    "contains": [
+     "Inspectors open: 0"
+    ]
+   },
+   {
+    "op": "click",
+    "label": "Open inspector"
+   },
+   {
+    "op": "expect_uis",
+    "count": 2
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Inspector 1",
+     "0 edits"
+    ],
+    "ui": 1
+   },
+   {
+    "op": "type",
+    "label": "Shared note",
+    "value": "hello native world"
+   },
+   {
+    "op": "wait_text",
+    "contains": [
+     "Note: hello native world",
+     "3 words, 18 characters",
+     "1 edits"
+    ],
+    "timeout": 15,
+    "ui": 1
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Inspectors open: 1",
+     "3 words"
+    ]
+   },
+   {
+    "op": "click",
+    "label": "Close inspector",
+    "ui": 1
+   },
+   {
+    "op": "sleep",
+    "seconds": 1.0
+   },
+   {
+    "op": "expect_uis",
+    "count": 1
+   },
+   {
+    "op": "wait_text",
+    "contains": [
+     "Inspectors open: 0"
+    ],
+    "timeout": 15
+   },
+   {
+    "op": "click",
+    "label": "Open inspector"
+   },
+   {
+    "op": "expect_uis",
+    "count": 2
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Note: hello native world"
+    ],
+    "ui": 2
+   }
+  ]
+ },
+ "dashboard": {
+  "steps": [
+   {
+    "op": "expect_text",
+    "contains": [
+     "System dashboard",
+     "theme: cobalt",
+     "Local time",
+     "Processors"
+    ]
+   },
+   {
+    "op": "wait_text",
+    "contains": [
+     "% used"
+    ],
+    "timeout": 15,
+    "absent": [
+     "--:--:--"
+    ]
+   },
+   {
+    "op": "click",
+    "label": "Refresh now"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Manual refreshes | 1 |"
+    ]
+   }
+  ]
+ },
+ "message_preview": {
+  "steps": [
+   {
+    "op": "expect_text",
+    "contains": [
+     "Nothing typed yet.",
+     "No messages sent yet.",
+     "140 characters left",
+     "Keep it under"
+    ]
+   },
+   {
+    "op": "expect_disabled",
+    "label": "Send",
+    "value": true
+   },
+   {
+    "op": "type",
+    "label": "Message",
+    "value": "<b>bold</b> & <i>x</i>"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "<b>bold</b> & <i>x</i>",
+     "118 characters left"
+    ]
+   },
+   {
+    "op": "type",
+    "label": "To",
+    "value": "Team"
+   },
+   {
+    "op": "click",
+    "label": "Send"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "To Team: <b>bold</b> & <i>x</i>",
+     "Nothing typed yet."
+    ],
+    "absent": [
+     "No messages sent yet."
+    ]
+   },
+   {
+    "op": "type",
+    "label": "Message",
+    "value": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Too long by 1 characters."
+    ]
+   },
+   {
+    "op": "expect_disabled",
+    "label": "Send",
+    "value": true
+   }
+  ]
+ },
+ "expenses_step1": {
+  "steps": [
+   {
+    "op": "expect_text",
+    "contains": [
+     "New expense: ..., 0.00"
+    ]
+   },
+   {
+    "op": "type",
+    "label": "Description",
+    "value": "Coffee"
+   },
+   {
+    "op": "type",
+    "label": "Amount",
+    "value": "3.50"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "New expense: Coffee, 3.50"
+    ]
+   }
+  ]
+ },
+ "expenses_step2": {
+  "steps": [
+   {
+    "op": "expect_disabled",
+    "label": "Remove last",
+    "value": true
+   },
+   {
+    "op": "type",
+    "label": "Description",
+    "value": "Coffee"
+   },
+   {
+    "op": "type",
+    "label": "Amount",
+    "value": "3.50"
+   },
+   {
+    "op": "click",
+    "label": "Add expense"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Coffee: 3.50"
+    ]
+   },
+   {
+    "op": "expect_value",
+    "label": "Description",
+    "value": ""
+   },
+   {
+    "op": "type",
+    "label": "Description",
+    "value": "Bus"
+   },
+   {
+    "op": "type",
+    "label": "Amount",
+    "value": "2"
+   },
+   {
+    "op": "click",
+    "label": "Add expense"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Coffee: 3.50",
+     "Bus: 2"
+    ]
+   },
+   {
+    "op": "click",
+    "label": "Remove last"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Coffee: 3.50"
+    ],
+    "absent": [
+     "Bus: 2"
+    ]
+   }
+  ]
+ },
+ "expenses_step3": {
+  "steps": [
+   {
+    "op": "expect_disabled",
+    "label": "Add expense",
+    "value": true
+   },
+   {
+    "op": "type",
+    "label": "Description",
+    "value": "Coffee"
+   },
+   {
+    "op": "type",
+    "label": "Amount",
+    "value": "three"
+   },
+   {
+    "op": "click",
+    "label": "Add expense"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Amount must be a number"
+    ]
+   },
+   {
+    "op": "type",
+    "label": "Amount",
+    "value": "-1"
+   },
+   {
+    "op": "click",
+    "label": "Add expense"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Amount must be greater than zero"
+    ]
+   },
+   {
+    "op": "type",
+    "label": "Amount",
+    "value": "3.5"
+   },
+   {
+    "op": "choose",
+    "label": "Category",
+    "value": "other"
+   },
+   {
+    "op": "click",
+    "label": "Add expense"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Coffee (Other): 3.50"
+    ],
+    "absent": [
+     "Amount must"
+    ]
+   }
+  ]
+ }
+}
