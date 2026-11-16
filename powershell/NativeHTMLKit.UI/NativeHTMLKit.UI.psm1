@@ -1,4 +1,4 @@
-# NativeHTMLKit UI — lightweight, SDK-only UI primitives. PS 5.1 and 7.2+.
+# NativeHTMLKit UI - lightweight, SDK-only UI primitives. PS 5.1 and 7.2+.
 $script:NHKUiModuleRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 . (Join-Path $script:NHKUiModuleRoot 'Private/Runtime.ps1')
 . (Join-Path $script:NHKUiModuleRoot 'Private/Components.ps1')

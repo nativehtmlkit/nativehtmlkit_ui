@@ -62,11 +62,16 @@ function Add-NHKUiAlert {
     return $node
 }
 function Add-NHKUiButton {
-    [CmdletBinding()] param([Parameter(Mandatory)]$UI,[Parameter(Mandatory)][string]$Text,
+    [CmdletBinding()] param([Parameter(Mandatory)]$UI,[string]$Text='',
         [ValidateSet('primary','secondary','danger','quiet')][string]$Variant='primary',
-        [scriptblock]$OnClick, [AllowNull()]$Data, $DisabledState)
+        [scriptblock]$OnClick, [AllowNull()]$Data, $DisabledState, $Bind)
+    if (-not $Text -and $null -eq $Bind) { throw 'Add-NHKUiButton needs -Text or a bound -Bind label' }
     $attrs = @{class=('nhk-button nhk-'+$Variant);type='button'}
     $node = Add-NHKUiElementInternal -UI $UI -Tag button -Attrs $attrs -Text $Text
+    if ($null -ne $Bind) {
+        $b = Add-NHKUiBindingInternal $UI $node $Bind text
+        $node.Text = [string]$b.Last
+    }
     if ($null -ne $DisabledState) {
         $b = Add-NHKUiBindingInternal $UI $node $DisabledState disabled
         if ([bool]$b.Last) { $node.Attrs.disabled = $true }
@@ -87,18 +92,12 @@ function Add-NHKUiInput {
         $binding = Add-NHKUiBindingInternal $UI $node $Bind value
         $node.Attrs.value = [string]$binding.Last
         if ($Label) {
-            # HTML label may follow the control and still be associated via for/id.
-            $null = Add-NHKUiElementInternal -UI $UI -Tag label -Attrs @{class='nhk-label';for=$node.Id} -Text $Label
+            # A native <label for> names the control; it precedes the control in reading order.
+            $labelNode = Add-NHKUiElementInternal -UI $UI -Tag label -Attrs @{class='nhk-label';for=$node.Id} -Text $Label
+            Move-NHKUiNodeBefore $field $labelNode $node
         }
-        $uiLocal = $UI; $stateLocal = $Bind; $bindingLocal = $binding; $target = $node.Id
-        $callback = {
-            param($eventObject,$context)
-            $newValue = $eventObject.value
-            if ($null -eq $newValue) { $newValue = Get-NativeHTMLKitValue -Document $uiLocal.Document -Element $target }
-            $bindingLocal.Last = [string]$newValue
-            $stateLocal.Set([string]$newValue)
-        }.GetNewClosure()
-        Register-NHKUiActionInternal $UI $node input $callback $null
+        Register-NHKUiActionInternal $UI $node input $script:NHKUiControlChanged ([pscustomobject]@{
+            UI = $UI; State = $Bind; Binding = $binding; Target = $node.Id; Kind = 'value' })
     } finally {
         if ($Label) { $UI.Stack.RemoveAt($UI.Stack.Count-1) }
     }
@@ -115,15 +114,8 @@ function Add-NHKUiCheckbox {
         if ([bool]$binding.Last) { $node.Attrs.checked = $true }
         $null = Add-NHKUiElementInternal -UI $UI -Tag label -Attrs @{for=$node.Id} -Text $Label
     } finally { $UI.Stack.RemoveAt($UI.Stack.Count-1) }
-    $uiLocal=$UI; $stateLocal=$Bind; $bindingLocal=$binding; $target=$node.Id
-    $callback = {
-        param($eventObject,$context)
-        $v = $eventObject.checked
-        if ($null -eq $v) { $v = Get-NativeHTMLKitChecked -Document $uiLocal.Document -Element $target }
-        $bindingLocal.Last = [bool]$v
-        $stateLocal.Set([bool]$v)
-    }.GetNewClosure()
-    Register-NHKUiActionInternal $UI $node change $callback $null
+    Register-NHKUiActionInternal $UI $node change $script:NHKUiControlChanged ([pscustomobject]@{
+        UI = $UI; State = $Bind; Binding = $binding; Target = $node.Id; Kind = 'checked' })
     return $node
 }
 function Add-NHKUiSelect {
@@ -137,23 +129,19 @@ function Add-NHKUiSelect {
         [void]$UI.Stack.Add($node)
         try {
             foreach ($option in $Options) {
-                # Options contain ordinary @{Value='...';Label='...'} objects.
+                # Options are ordinary @{Value='...';Label='...'} hashtables or objects.
                 $v=[string]$option.Value; $t=[string]$option.Label
                 $attrs=@{value=$v}
                 if ($v -eq [string]$binding.Last) { $attrs.selected=$true }
                 $null = Add-NHKUiElementInternal -UI $UI -Tag option -Attrs $attrs -Text $t
             }
         } finally { $UI.Stack.RemoveAt($UI.Stack.Count-1) }
-        if ($Label) { $null=Add-NHKUiElementInternal -UI $UI -Tag label -Attrs @{for=$node.Id;class='nhk-label'} -Text $Label }
-        $uiLocal=$UI; $stateLocal=$Bind; $bindingLocal=$binding; $target=$node.Id
-        $callback = {
-            param($eventObject,$context)
-            $v=$eventObject.value
-            if ($null -eq $v) { $v=Get-NativeHTMLKitValue -Document $uiLocal.Document -Element $target }
-            $bindingLocal.Last=[string]$v
-            $stateLocal.Set([string]$v)
-        }.GetNewClosure()
-        Register-NHKUiActionInternal $UI $node change $callback $null
+        if ($Label) {
+            $labelNode = Add-NHKUiElementInternal -UI $UI -Tag label -Attrs @{for=$node.Id;class='nhk-label'} -Text $Label
+            Move-NHKUiNodeBefore $field $labelNode $node
+        }
+        Register-NHKUiActionInternal $UI $node change $script:NHKUiControlChanged ([pscustomobject]@{
+            UI = $UI; State = $Bind; Binding = $binding; Target = $node.Id; Kind = 'value' })
     } finally { $UI.Stack.RemoveAt($UI.Stack.Count-1) }
     return $node
 }
