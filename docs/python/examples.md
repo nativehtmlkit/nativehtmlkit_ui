@@ -35,7 +35,7 @@ The first window: a greeting that follows a text field, and a Reset button.
 
 Related guide: [reactive state](guides/reactive-state.md).
 
-*Screenshot not captured yet.*
+![Hello UI](../images/examples/ui-py-hello.png)
 
 <details><summary>Full source</summary>
 
@@ -575,7 +575,7 @@ Built step by step in the [settings editor tutorial](tutorials/settings-editor.m
 
 Related guide: [forms and inputs](guides/forms-and-inputs.md).
 
-*Screenshot not captured yet.*
+![Settings editor](../images/examples/ui-py-settings_editor.png)
 
 <details><summary>Full source</summary>
 
@@ -936,7 +936,7 @@ Count words in a text file in the background with progress, Cancel and a top-ten
 
 Related guide: [background work](guides/background-work.md).
 
-*Screenshot not captured yet.*
+![Word counter](../images/examples/ui-py-word_counter.png)
 
 <details><summary>Full source</summary>
 
@@ -1441,7 +1441,7 @@ Every component in a chosen theme and density, with an optional custom accent co
 
 Related guide: [theming and custom css](guides/theming-and-custom-css.md).
 
-*Screenshot not captured yet.*
+![Theme preview](../images/examples/ui-py-theme_preview.png)
 
 <details><summary>Full source</summary>
 
