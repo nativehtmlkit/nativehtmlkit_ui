@@ -1,6 +1,6 @@
 # UI limitations and qualification
 
-The UI v0.1.0 GitHub release is a prerelease. The detailed visual qualification was performed with earlier SDK/Core combinations; it does not independently prove every capability under Core 1.0.3, Python/PowerShell SDK 0.1.1. Screen-reader validation is incomplete and Core's select/Orca announcement issue remains open.
+UI 0.1.1 is an early (pre-1.0) release. Its 0.1.1 packages passed the real-input GUI suite (state, input, keyboard focus, select, disabled bindings, responsive widths, two windows, 1000-update load, 100 mount/close cycles) at 100% scaling against Python SDK 0.1.2 / PowerShell SDK 0.1.2 / Core 1.0.3 on KDE Plasma 6.6 Wayland (Python, PowerShell 7) and Windows Server 2022 (Python, PowerShell 7, Windows PowerShell 5.1). IME, 125%/150% scaling and theme checks were last run with UI 0.1.0 on SDK 0.1.0 / Core 1.0.2. Screen-reader validation is incomplete and Core's select/Orca announcement issue remains open.
 
 **Known UI bugs recorded in the Project register:** Python `Computed` can falsely raise a circular dependency error and retain a stale value during concurrent updates; disposing many UI windows can accumulate SDK shutdown callbacks. Until fixed, serialize writes affecting the same computed state, use background worker handoff via `ui.post`, and avoid rapidly creating/discarding many UIs in long-lived applications.
 
