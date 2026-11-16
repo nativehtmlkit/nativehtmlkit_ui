@@ -1,11 +1,14 @@
 # NativeHTMLKit.UI unit tests against a FAKE SDK module (tests/FakeSdk). No host, no Pester.
 # Run: pwsh -NoProfile -File powershell/tests/Unit.Tests.ps1   (and powershell.exe 5.1 on Windows)
 # Exit code = number of failed tests. Proves UI logic only; native behavior needs the real SDK.
+# -ModulePath tests another copy (for example the module unpacked from the release zip).
+param([string]$ModulePath = (Join-Path $PSScriptRoot '../NativeHTMLKit.UI/NativeHTMLKit.UI.psd1'))
 $ErrorActionPreference = 'Stop'
 $fakeRoot = Join-Path $PSScriptRoot 'FakeSdk'
 $env:PSModulePath = $fakeRoot + [IO.Path]::PathSeparator + $env:PSModulePath
 Import-Module (Join-Path $fakeRoot 'NativeHTMLKit/NativeHTMLKit.psd1') -Force
-Import-Module (Join-Path $PSScriptRoot '../NativeHTMLKit.UI/NativeHTMLKit.UI.psd1') -Force
+Import-Module $ModulePath -Force
+Write-Output ("INFO UI module {0} on PowerShell {1} {2}" -f (Get-Module NativeHTMLKit.UI).Path, $PSVersionTable.PSVersion, $PSVersionTable.PSEdition)
 if ((Get-Module NativeHTMLKit).Description -notmatch 'Fake') { throw 'Unit tests must run against the fake SDK' }
 
 $script:Passed = 0; $script:Failed = 0

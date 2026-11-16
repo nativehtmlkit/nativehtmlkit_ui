@@ -22,6 +22,7 @@ from nativehtmlkit_ui import UI, computed, state
 CHANNEL = Path(os.environ["NHKUI_CHANNEL"])
 TITLE = os.environ.get("NHKUI_TITLE", "NHKUI-py")
 THEME = os.environ.get("NHKUI_THEME", "cobalt")
+WIDTH, HEIGHT = (int(v) for v in os.environ.get("NHKUI_SIZE", "1000x700").split("x"))
 _lock = threading.Lock()
 
 
@@ -42,7 +43,7 @@ class Gallery:
         self.clicks = 0
         self.disabled_clicks = 0
         self.message = computed(lambda: f"{self.name.value or 'Nobody'}: {self.count.value} clicks")
-        ui = self.ui = UI(title=TITLE, theme=THEME, density="compact", width=1000, height=700)
+        ui = self.ui = UI(title=TITLE, theme=THEME, density="compact", width=WIDTH, height=HEIGHT)
         ids = self.ids = {}
         with ui.column():
             ids["heading"] = ui.heading("NativeHTMLKit UI gallery", level=1).id

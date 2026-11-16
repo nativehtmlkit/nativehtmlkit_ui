@@ -9,6 +9,8 @@ $app = Start-NativeHTMLKitScript -Name 'NHKUI'
 $channel = $env:NHKUI_CHANNEL
 $title = if ($env:NHKUI_TITLE) { $env:NHKUI_TITLE } else { 'NHKUI-ps' }
 $theme = if ($env:NHKUI_THEME) { $env:NHKUI_THEME } else { 'cobalt' }
+$size = if ($env:NHKUI_SIZE) { $env:NHKUI_SIZE } else { '1000x700' }
+$width = [int]$size.Split('x')[0]; $height = [int]$size.Split('x')[1]
 $null = New-Item -ItemType Directory -Force -Path $channel
 
 function Write-AppLog([string]$Kind, [hashtable]$Fields = @{}) {
@@ -28,7 +30,7 @@ $g | Add-Member -NotePropertyName ChoiceMirror -NotePropertyValue (New-NHKUiComp
 $g | Add-Member -NotePropertyName AlertText -NotePropertyValue (New-NHKUiComputed -DependsOn @($g.Count) -Data $g -Compute { param($s) "Native reactive updates: $($s.Count.Value)" })
 $g | Add-Member -NotePropertyName BadgeText -NotePropertyValue (New-NHKUiComputed -DependsOn @($g.Count) -Data $g -Compute { param($s) [string]$s.Count.Value })
 
-$ui = New-NHKUi -Title $title -Theme $theme -Density compact -Width 1000 -Height 700
+$ui = New-NHKUi -Title $title -Theme $theme -Density compact -Width $width -Height $height
 $ids = $g.Ids
 $null = Add-NHKUiColumn -UI $ui -Content {
     $ids.heading = (Add-NHKUiHeading -UI $ui -Text 'NativeHTMLKit UI gallery' -Level 1).Id

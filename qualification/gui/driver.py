@@ -98,6 +98,23 @@ OUT(JSON.stringify(r));""")
         self.kwin("var ws = workspace.windowList(); for (var i=0;i<ws.length;i++){ if (ws[i].caption.indexOf(%s)>=0)"
                   "{ ws[i].closeWindow(); OUT('ok'); break; } }" % json.dumps(title), wait=0.3)
 
+    # IME (fcitx5 must already be KWin's Wayland input method; the runner enables and restores it)
+    IME = {"engine": "fcitx5 pinyin", "keys": "nihao", "commit_keys": ["Space"], "committed": "\u4f60\u597d"}
+
+    def ime_available(self) -> bool:
+        return subprocess.run(["fcitx5-remote"], capture_output=True).returncode == 0
+
+    def ime_on(self) -> None:
+        subprocess.run(["fcitx5-remote", "-o"], capture_output=True, timeout=10)
+        time.sleep(0.4)
+
+    def ime_off(self) -> None:
+        subprocess.run(["fcitx5-remote", "-c"], capture_output=True, timeout=10)
+        time.sleep(0.4)
+
+    def type_composed(self, text: str) -> None:
+        self.type(text, delay_ms=90)
+
     def screenshot(self, path: Path) -> bool:
         subprocess.run(["spectacle", "-b", "-n", "-f", "-o", str(path)], capture_output=True, timeout=30)
         return path.exists() and path.stat().st_size > 0
@@ -113,8 +130,41 @@ OUT(JSON.stringify(r));""")
 class WindowsDesktop:
     VK = {"Enter": 0x0D, "Escape": 0x1B, "Tab": 0x09, "Alt": 0x12, "F4": 0x73, "Left": 0x25, "Right": 0x27,
           "Down": 0x28, "Up": 0x26, "Home": 0x24, "End": 0x23, "Ctrl": 0x11, "A": 0x41, "Space": 0x20,
-          "Shift": 0x10, "Backspace": 0x08}
+          "Shift": 0x10, "Backspace": 0x08, "IME_ON": 0x16, "IME_OFF": 0x1A}
     EXTENDED = {0x25, 0x26, 0x27, 0x28, 0x24, 0x23}
+    IME = {"engine": "Microsoft IME (Japanese)", "keys": "nihonn", "commit_keys": ["Space", "Enter"],
+           "committed": "\u65e5\u672c"}
+
+    def ime_available(self) -> bool:
+        return True  # the runner adds ja-JP to this user's input languages (lab-ime.ps1)
+
+    def _lang(self, klid: str) -> None:
+        u, wt = self.user32, self.wt
+        u.LoadKeyboardLayoutW.restype = wt.HKL
+        u.LoadKeyboardLayoutW.argtypes = [wt.LPCWSTR, wt.UINT]
+        hkl = u.LoadKeyboardLayoutW(klid, 0)
+        u.GetForegroundWindow.restype = wt.HWND
+        u.PostMessageW.argtypes = [wt.HWND, wt.UINT, wt.WPARAM, self.ctypes.c_void_p]
+        u.PostMessageW(u.GetForegroundWindow(), 0x0050, 0, hkl)  # WM_INPUTLANGCHANGEREQUEST
+        time.sleep(0.6)
+
+    def ime_on(self) -> None:
+        self._lang("00000411")
+        self.key("IME_ON")
+        time.sleep(0.5)
+
+    def ime_off(self) -> None:
+        self.key("IME_OFF")
+        time.sleep(0.3)
+        self._lang("00000409")
+
+    def type_composed(self, text: str) -> None:
+        """Real virtual keys for ASCII letters, so the IME composes them (KEYEVENTF_UNICODE bypasses it)."""
+        for char in text:
+            vk = ord(char.upper())
+            self._send(self._key(vk=vk), self._key(vk=vk, flags=0x0002))
+            time.sleep(0.09)
+        time.sleep(0.5)
 
     def __init__(self):
         import ctypes
@@ -297,7 +347,8 @@ class Run:
     # app control
     def launch(self) -> None:
         env = dict(os.environ)
-        env.update({"NHKUI_CHANNEL": str(self.channel), "NHKUI_TITLE": self.title, "NHKUI_THEME": self.args.theme})
+        env.update({"NHKUI_CHANNEL": str(self.channel), "NHKUI_TITLE": self.title, "NHKUI_THEME": self.args.theme,
+                    "NHKUI_SIZE": self.args.size})
         if self.args.headless:
             env["NATIVEHTMLKIT_TEST_MODE"] = "1"
             env["UI4ME_TEST_MODE"] = "1"
@@ -313,7 +364,7 @@ class Run:
         flags = 0x08000000 if WINDOWS else 0  # CREATE_NO_WINDOW: no console window over the app
         self.started = time.monotonic()
         self.proc = subprocess.Popen(argv, cwd=str(apps), env=env, stdout=self.stdout, stderr=self.stderr,
-                                     stdin=subprocess.DEVNULL, creationflags=flags)
+                                     stdin=subprocess.DEVNULL, creationflags=flags, start_new_session=not WINDOWS)
         (self.out / "command.json").write_text(json.dumps({"argv": argv, "title": self.title}, indent=1))
 
     def call(self, op: str, timeout: float = 60, **args) -> dict:
@@ -358,6 +409,7 @@ class Run:
     def point(self, name: str, dx: float = 0.5, dy: float = 0.5, rects=None, title=None) -> tuple[float, float]:
         rects = rects or self.call("rects")["rects"]
         r = rects[name]
+        r = r.get("rect", r)
         win = self.window(title)
         x = r["x"] + r["width"] * dx if dx <= 1 else r["x"] + dx
         y = r["y"] + r["height"] * dy
@@ -395,6 +447,11 @@ class Run:
     def run(self) -> int:
         only = set(self.args.only.split(",")) if self.args.only else None
         want = lambda s: only is None or s in only  # noqa: E731
+        if not self.args.headless:
+            foreign = [w["caption"] for w in self.desktop.windows() if w["caption"].startswith("NHKUI-")]
+            if foreign:
+                self.blocked("preflight.no_foreign_test_windows", f"foreign test windows on this desktop: {foreign}")
+                return self.finish()
         self.launch()
         if not self.check("app.ready", self.wait_ready(), seconds=round(time.monotonic() - self.started, 2)):
             return self.finish()
@@ -419,6 +476,44 @@ class Run:
         self.check("dom.no_errors_after_mount", s0.get("ok") and not _diag(s0, "errors")
                    and not _diag(s0, "dom_uncertain"), diagnostics=s0.get("diagnostics"))
 
+        try:
+            self.scenarios(gui, want)
+        except Exception as error:  # noqa: BLE001 - a driver/app failure is a FAIL with evidence
+            import traceback
+            self.check("driver.scenario_exception", False, error=type(error).__name__, message=str(error)[:300],
+                       trace=traceback.format_exc()[-1500:])
+        # S15: close the main window while updates are pending -> orderly exit, no orphans
+        if want("S15"):
+            self.call("storm_async", n=5000)
+            time.sleep(0.3)
+            if gui:
+                self.desktop.close(self.title)
+            else:
+                self.call("quit")
+        else:
+            self.call("quit")
+        try:
+            code = self.proc.wait(timeout=30)
+        except subprocess.TimeoutExpired:
+            self.proc.kill()
+            code = "killed"
+        self.check("lifecycle.orderly_exit_code_0", code == 0, code=code)
+        time.sleep(1.5)
+        log = (self.channel / "app.jsonl").read_text(encoding="utf-8") if (self.channel / "app.jsonl").exists() else ""
+        shutdown = [json.loads(line) for line in log.splitlines() if '"shutdown"' in line]
+        diag = shutdown[-1]["diagnostics"] if shutdown else {}
+        self.check("lifecycle.shutdown_hook_ran", bool(shutdown), diagnostics=diag)
+        self.check("lifecycle.no_dom_uncertain_after_close_with_pending_updates",
+                   bool(shutdown) and not _get(diag, "dom_uncertain", "DomUncertain"),
+                   diagnostics=diag)
+        stderr = (self.out / "app-stderr.log").read_text(errors="replace")
+        bad = [line for line in stderr.splitlines() if any(k in line for k in ("Traceback", "Exception", "FAILED", "failed"))]
+        self.check("lifecycle.no_errors_in_backend_stderr", not bad, lines=bad[:8])
+        leftovers = [p for p in self.desktop.host_processes() if self.title in p or str(self.proc.pid) in p]
+        self.check("lifecycle.no_orphan_host_process", not leftovers, leftovers=leftovers)
+        return self.finish()
+
+    def scenarios(self, gui: bool, want) -> None:
         if gui and want("S3"):
             for _ in range(3):
                 self.click("increment")
@@ -490,6 +585,32 @@ class Run:
             ok, s = self.wait_for(lambda s: s["state"]["count"] == before + 1, timeout=3)
             self.check("gui.enter_activates_button", ok, count=s and s["state"]["count"], before=before)
             self.shot("07-keyboard")
+        if gui and want("S16") and self.args.ime:
+            ime = self.desktop.IME
+            self.click("name", dx=0.5)
+            self.desktop.key("Ctrl", "A")
+            self.desktop.type("abc ")
+            self.desktop.ime_on()
+            self.desktop.type_composed(ime["keys"])
+            self.shot("16-ime-preedit")
+            mid = self.snap()
+            for k in ime["commit_keys"]:
+                self.desktop.key(k)
+                time.sleep(0.4)
+            self.desktop.ime_off()
+            self.desktop.type(" xyz")
+            want_value = "abc " + ime["committed"] + " xyz"
+            ok, s = self.wait_for(lambda s: s["state"]["name"] == want_value, timeout=6)
+            sel = (s or {}).get("name_selection") or {}
+            self.check("gui.ime_composition_commits_into_state", ok and s["value"]["name"] == want_value
+                       and s["texts"]["mirror"] == "Mirror: " + want_value, engine=ime["engine"],
+                       expected=want_value, value=s and s["value"]["name"], state=s and s["state"]["name"],
+                       mid_composition_value=mid.get("value", {}).get("name"))
+            self.check("gui.ime_caret_at_end_after_commit", ok and isinstance(sel, dict)
+                       and sel.get("start") == len(want_value.encode("utf-16-le")) // 2, selection=sel)
+            self.check("gui.ime_no_write_errors", ok and not _diag(s, "errors") and not _diag(s, "dom_uncertain"),
+                       diagnostics=s and s.get("diagnostics"))
+            self.shot("16-ime-committed")
         # programmatic updates while the control has focus (echo path)
         if want("S9"):
             if gui:
@@ -541,7 +662,8 @@ class Run:
             expect = {1300: "repeat(3", 900: "repeat(2", 620: "1fr", 360: "1fr"}
             self.check("layout.responsive_breakpoints", all(str(widths.get(w) or "").startswith(v) for w, v in expect.items()),
                        columns=widths)
-            self.call("resize", width=1000, height=700)
+            w, h = (int(v) for v in self.args.size.split("x"))
+            self.call("resize", width=w, height=h)
         if want("S12"):
             r = self.call("open_second")
             ok = r.get("ok")
@@ -550,10 +672,11 @@ class Run:
                 win2 = self.window(second)
                 self.check("gui.second_window_appears", win2 is not None)
                 if win2:
-                    self.desktop.place(second, 620, 200)
+                    self.desktop.place(second, 300, 200)
                     self.desktop.activate(second)
                     st = self.call("second_state")
                     rect = st["rects"]["button"]
+                    rect = rect.get("rect", rect)
                     x, y = self.desktop.client_point(self.window(second), rect["x"] + rect["width"] / 2,
                                                      rect["y"] + rect["height"] / 2, 1.0)
                     self.desktop.click(x, y)
@@ -584,40 +707,27 @@ class Run:
             s = self.snap()
             self.check("lifecycle.main_ui_healthy_after_cycles", s.get("ok") and not _diag(s, "dom_uncertain"),
                        diagnostics=s.get("diagnostics"))
-        # S15: close the main window while updates are pending -> orderly exit, no orphans
-        if want("S15"):
-            self.call("storm_async", n=5000)
-            time.sleep(0.3)
-            if gui:
-                self.desktop.close(self.title)
-            else:
-                self.call("quit")
+
+    def kill_app(self) -> None:
+        """Last-resort cleanup of the launched app tree (launcher, host, backend) after a driver failure."""
+        if not self.proc or self.proc.poll() is not None:
+            return
+        self.results.append({"check": "driver.app_killed_by_driver", "status": "INFO"})
+        if WINDOWS:
+            subprocess.run(["taskkill", "/T", "/F", "/PID", str(self.proc.pid)], capture_output=True)
         else:
-            self.call("quit")
+            import signal
+            try:
+                os.killpg(self.proc.pid, signal.SIGKILL)
+            except OSError:
+                pass
         try:
-            code = self.proc.wait(timeout=30)
+            self.proc.wait(10)
         except subprocess.TimeoutExpired:
-            self.proc.kill()
-            code = "killed"
-        self.check("lifecycle.orderly_exit_code_0", code == 0, code=code)
-        time.sleep(1.5)
-        log = (self.channel / "app.jsonl").read_text(encoding="utf-8") if (self.channel / "app.jsonl").exists() else ""
-        shutdown = [json.loads(line) for line in log.splitlines() if '"shutdown"' in line]
-        diag = shutdown[-1]["diagnostics"] if shutdown else {}
-        self.check("lifecycle.shutdown_hook_ran", bool(shutdown), diagnostics=diag)
-        self.check("lifecycle.no_dom_uncertain_after_close_with_pending_updates",
-                   bool(shutdown) and not _get(diag, "dom_uncertain", "DomUncertain"),
-                   diagnostics=diag)
-        stderr = (self.out / "app-stderr.log").read_text(errors="replace")
-        bad = [line for line in stderr.splitlines() if any(k in line for k in ("Traceback", "Exception", "FAILED", "failed"))]
-        self.check("lifecycle.no_errors_in_backend_stderr", not bad, lines=bad[:8])
-        leftovers = [p for p in self.desktop.host_processes() if self.title in p or str(self.proc.pid) in p]
-        self.check("lifecycle.no_orphan_host_process", not leftovers, leftovers=leftovers)
-        return self.finish()
+            pass
 
     def finish(self) -> int:
-        if self.proc and self.proc.poll() is None:
-            self.proc.kill()
+        self.kill_app()
         shutil.copy2(self.channel / "app.jsonl", self.out / "app.jsonl") if (self.channel / "app.jsonl").exists() else None
         summary = {s: sum(1 for r in self.results if r["status"] == s) for s in ("PASS", "FAIL", "BLOCKED")}
         (self.out / "results.json").write_text(json.dumps({"lang": self.args.lang, "headless": self.args.headless,
@@ -651,7 +761,14 @@ def main() -> int:
     p.add_argument("--ui-src", default="", help="nativehtmlkit_ui source dir (omit to use the installed wheel)")
     p.add_argument("--theme", default="cobalt")
     p.add_argument("--only", default="")
-    return Run(p.parse_args()).run()
+    p.add_argument("--ime", action="store_true", help="run S16 (the runner must enable the input method)")
+    p.add_argument("--size", default="1000x700", help="main window size in CSS px (smaller for 125/150%% scaling)")
+    run = Run(p.parse_args())
+    try:
+        return run.run()
+    except BaseException:
+        run.kill_app()
+        raise
 
 
 if __name__ == "__main__":
