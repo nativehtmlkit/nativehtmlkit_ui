@@ -14,8 +14,16 @@ forbid_python = [
     r"\b(?:app|document|window)\.rpc\b",
     r"\b(?:subprocess|Popen)\b",
     r"\b(?:requests|websockets|pywebview|cefpython)\b",
+    # SDK private state (public attributes such as Window.closed/.document are allowed).
+    r"\.(?:_handlers|_windows|_retire|_dispatch|_check|_shutdown_listeners|_window_listeners)\b",
 ]
-forbid_ps = [r"\bInvoke-NativeHTMLKitRpc\b", r"\bStart-NativeHTMLKitHost\b", r"\bAdd-Type\b"]
+forbid_ps = [r"\bInvoke-NativeHTMLKitRpc\b", r"\bStart-NativeHTMLKitHost\b", r"\bAdd-Type\b",
+             r"\bStart-NativeHTMLKitRpc\b", r"\bSend-NativeHTMLKitNotification\b",
+             # SDK private state/transport/pump (only documented commands and exception types)
+             r"\.Transport\b", r"\bInvoke-NativeHTMLKitPump\b", r"\.(?:Retired|ShutdownRequested|Dispatching|Deferred)\b",
+             r"\bRegister-NativeHTMLKitNotification\b"]
+# PS 5.1 parser safety: no PS7-only operators in the module.
+ps7_only = [r"\?\?=?", r"\?\.", r"\s\|\|\s", r"\s&&\s", r"\bclean\s*\{"]
 failures = []
 for f in python_files:
     content = f.read_text(encoding="utf8")
@@ -24,9 +32,15 @@ for f in python_files:
             failures.append(f"{f.relative_to(ROOT)}: forbidden pattern {pattern}")
 for f in ps_files:
     content = f.read_text(encoding="utf8")
+    code = "\n".join(line.split("#", 1)[0] for line in content.splitlines())
     for pattern in forbid_ps:
-        if re.search(pattern, content, re.IGNORECASE):
+        if re.search(pattern, code, re.IGNORECASE):
             failures.append(f"{f.relative_to(ROOT)}: forbidden pattern {pattern}")
+    for pattern in ps7_only:
+        if re.search(pattern, code):
+            failures.append(f"{f.relative_to(ROOT)}: PowerShell 7-only syntax {pattern} (module must parse on 5.1)")
+    if any(ord(ch) > 127 for ch in content):
+        failures.append(f"{f.relative_to(ROOT)}: non-ASCII character (Windows PowerShell 5.1 reads BOM-less files as ANSI)")
 a = (ROOT / "shared/css/ui.css").read_bytes()
 b = (ROOT / "python/src/nativehtmlkit_ui/assets/ui.css").read_bytes()
 c = (ROOT / "powershell/NativeHTMLKit.UI/assets/ui.css").read_bytes()
