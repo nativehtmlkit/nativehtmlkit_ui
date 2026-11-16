@@ -52,3 +52,29 @@ Use a **real logged-in KDE Wayland session**, not Xvfb/headless/SSH-only.
 Passing tests does not authorize publication. Record exact commands, versions, hashes, screenshots and PASS/FAIL/BLOCKED outcomes. No green release status until all required Windows/Linux interactive gates are independently verified. A Core/SDK bug goes into the Project bug register with reproduction, observed/expected, impact and temporary workaround; no cross-repo opportunistic fixes.
 
 For an agent starting from this handoff, `agent/AUTONOMOUS_FINISH_PROMPT.md` is the operational prompt.
+
+## Harness (qualification/gui)
+
+`qualification/gui/driver.py` runs **inside** the interactive desktop session and drives the gallery
+apps (`apps/py_gallery.py`, `apps/ps_gallery.ps1`, identical controls) with real OS input. It reads
+DOM/state snapshots through a private file channel and writes `results.json` (PASS/FAIL/BLOCKED per
+check), screenshots and app logs. Scenarios: S3 clicks, S4 typing + mid-text caret, S5 rapid typing,
+S6 checkbox and `<label for>`, S7 keyboard (Tab/Space/Down/Enter, focus ring), S9 programmatic value,
+S10 1000-update burst + responsiveness, S11 breakpoints 1300/900/620/360, S12 second window + compositor
+close, S13 100 mount/close cycles, S14 disabled binding, S15 close with pending updates (exit code,
+backend stderr, orphan hosts), S16 IME composition (`--ime`).
+
+```bash
+# headless integration (NOT GUI evidence)
+python qualification/gui/driver.py --lang py --headless --ui-src python/src --out evidence/headless-py
+PSModulePath=powershell:<sdk-modules>:... python qualification/gui/driver.py --lang ps --headless --out evidence/headless-ps
+# inside KDE Wayland (source ~/lab/bin/gui-env) or an interactive Windows desktop:
+python qualification/gui/driver.py --lang py --python <venv-python> --out DIR [--size 760x440] [--ime]
+python qualification/gui/driver.py --lang ps --pwsh pwsh|powershell.exe --out DIR
+```
+
+Input methods are enabled only around `--ime` runs and restored afterwards: `linux-ime.sh on|off STATE`
+(fcitx5 Pinyin as KWin's input method) and `windows-ime.ps1 -Mode on|off -State DIR` (Microsoft Japanese
+IME for the current user only). Shared lab desktops: hold the Project's per-desktop `flock` for the whole
+run; the driver refuses to start when another `NHKUI-` window is on the desktop and always kills the app
+tree it launched.

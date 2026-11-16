@@ -1,54 +1,60 @@
 # Public SDK contract used by the UI layer
 
-Based on the **user-provided 2026-11-15 ZIP snapshots**. This is a bounded interface inventory, **not** a private Core protocol contract. Local agent must verify the current installed SDKs before qualification.
+Verified on 2026-11-16 against the **published** SDK prereleases and their source, and exercised with real
+hosts (headless and interactive). This is the bounded interface the UI depends on, not a Core protocol contract.
 
-## Python SDK — `nativehtmlkit` 0.1.0 prerelease
+| Component | Version | Evidence of identity |
+|---|---|---|
+| Python SDK `nativehtmlkit` | 0.1.0 (GitHub prerelease, tag `v0.1.0` = commit `7559b5b`) | wheels `3073066c…642d` (manylinux_2_39_x86_64), `183ba566…67fc` (win_amd64); local `dist/SHA256SUMS` == release `SHA256SUMS` |
+| PowerShell SDK `NativeHTMLKit` | 0.1.0 (GitHub prerelease, tag `v0.1.0` = commit `5734a3a`) | `NativeHTMLKit-0.1.0-linux-x64+win-x64.zip` `8e1fe37f…397b`, matches release `SHA256SUMS` |
+| Core host bundled by both SDKs | 1.0.2 (source `8a09875`), protocol 1 | linux-x64 `702adafc…741d2a`, windows-x64 `64d4502f…38f4` (`HOST-MANIFEST.json`, `nativehtmlkit-python version`: `manifest_match: true`) |
+| Forward check (unreleased) | Python SDK 0.1.1 `f0b9290`, PowerShell SDK 0.1.1 `215f75a`, Core 1.0.3 dev host `1cd4e9de…999f` | headless gallery suites 18/18 each (`evidence/04-forward/`) |
 
-| Call | Purpose |
-|---|---|
-| `Application.open_html(html, title=..., width=..., height=...)` | Create window and load document |
-| `Application.on_shutdown(callback)` | SDK application lifecycle cleanup |
-| `Application.on_window_event(callback) -> unsubscribe` | Dispose UI if owned window closes |
-| `Window.document` | Generation-bound Document handle |
-| `Document.on(type, callback, element=None) -> unsubscribe` | Post-native-dispatch event subscription |
-| `Document.batch(operations)` | Atomic compatible DOM mutations |
-| `Document.command(op, **fields)` | Public general document operation API |
-| `Document.set_value`, `get_value`, `set_checked`, `get_checked` | Native form control properties |
-| `Document.replace_html(element, html)` | Local structural region replacement |
+## Python SDK - calls used
 
-SDK callbacks run on its event worker thread. `on_shutdown` callbacks run when the SDK's `Application.run()` drains shutdown. Native document event payloads include type, element, path, and sometimes value/checked. The SDK exposes public backpressure/diagnostics; UI queue losses are separately diagnosed. No direct use of `app.rpc` or `.client` internals.
+| Call | Use in the UI | Verified behavior |
+|---|---|---|
+| `Application.open_html(html, title=, width=, height=)` | create the UI window and load its document | closes the window itself if the load fails |
+| `Application.on_shutdown(callback)` | dispose the UI after `app.shutdown` | **no unsubscribe**: the UI registers a weak callback so disposed UIs are not retained |
+| `Application.on_window_event(callback) -> unsubscribe` | dispose when its window gets `closed` | the **last** window gets no `closed` event (protocol v1 section 7); `app.shutdown` retires all handles instead |
+| `Window.document`, `Window.closed`, `Window.request_close()` | handle, staleness check, cleanup of a failed mount | public attributes/methods |
+| `Document.on(type, callback) -> unsubscribe` | one subscription per event type (limit 256 per document) | callbacks run on the SDK event worker; the UI only enqueues there |
+| `Document.batch(ops)`, `Document.command(op, **fields)` | `set_text`, `add_class`/`remove_class`, `set_attribute`/`remove_attribute`, `replace_children_html` | all are batchable (Core schema `BatchOp`, max 1024 ops); the UI sends at most 128 per batch |
+| `Document.set_value/get_value/set_checked/get_checked` | form controls | not batchable; issued separately |
+| `nativehtmlkit.StaleDocumentError`, `RpcError.code/.local` | failure classification | matched by name/attribute, so the UI imports nothing from the SDK at import time |
 
-## PowerShell SDK — `NativeHTMLKit` 0.1.0 prerelease
+## PowerShell SDK - commands used
 
-| Command | Purpose |
-|---|---|
-| `Start-NativeHTMLKitScript` | Existing host-first launcher/SDK connection |
-| `New-NativeHTMLKitWindow` | Create window |
-| `Open-NativeHTMLKitHtml` | Load document |
-| `Register-NativeHTMLKitDocumentEvent` / `Unregister-*` | One callback per native event type |
-| `Invoke-NativeHTMLKitBatch` | Bounded compatible document mutation |
-| `Set-NativeHTMLKitDocumentValue`, `Get-NativeHTMLKitValue` | Input value |
-| `Set-NativeHTMLKitChecked`, `Get-NativeHTMLKitChecked` | Input checked |
-| `Set-NativeHTMLKitDocumentHtml` | Local structural region replacement |
-| `Set-NativeHTMLKitReady` | SDK ready handshake |
-| `Wait-NativeHTMLKit -UntilShutdown` | Existing runspace event pump |
-| `Close-NativeHTMLKit` | SDK shutdown |
-| `Start-NativeHTMLKitTask` | Optional background task, completion on owner runspace |
+| Command | Use | Verified behavior |
+|---|---|---|
+| `New-NativeHTMLKitWindow`, `Open-NativeHTMLKitHtml` | window + document | |
+| `Register-/Unregister-NativeHTMLKitDocumentEvent` | one subscription per event type | callback receives only the event object; it runs on the owning runspace with `Dispatching` set, so notifications are **deferred** while it runs |
+| `Invoke-NativeHTMLKitBatch`, `Set-NativeHTMLKitDocumentValue`, `Set-NativeHTMLKitChecked`, `Get-NativeHTMLKitValue`, `Get-NativeHTMLKitChecked` | writes and fallbacks | every call waits for its reply **while pumping**; outside a callback that pump can run document callbacks (handled by the UI's re-entrancy guard) |
+| `Set-NativeHTMLKitReady`, `Wait-NativeHTMLKit`, `Close-NativeHTMLKit`, `Start-NativeHTMLKitTask -OnCompleted` | lifecycle, owned by the application | the UI never pumps or closes the SDK application |
+| `NativeHTMLKit.StaleObjectException`, `NativeHTMLKit.RpcException.Code` | failure classification | matched by type name (documented in the SDK README) |
 
-The UI module does **not** invoke `Invoke-NativeHTMLKitRpc` or call Core directly. Its `.psd1` requires the NativeHTMLKit module as a dependency. The PowerShell SDK may run the top-level script twice during host-first launch; keep side effects below `Start-NativeHTMLKitScript`.
+The module declares `RequiredModules = NativeHTMLKit >= 0.1.0`; it loads with the released 0.1.0 module and with the 0.1.1 tree.
 
-## Known native SDK constraints
+## Native event payload (Core 1.0.2 `document.rs`)
 
-- 256 document handlers max: UI registers per **event type**, not per component.
-- Bounded SDK callback/notification queues can drop events when full: UI cannot magically reconstruct lost events. Stress qualification and SDK-level fixes may be required.
-- Some commands cannot be placed in a batch (`set_value`, `set_checked`); the UI issues those separately.
-- Native callbacks are post-dispatch: default action suppression has to be registered **ahead of time** through public SDK APIs.
-- Host/document handles become stale after load/unload, close and `app.shutdown`; no further updates may be sent.
-- Document size, element count, batch and per-text-operation limits exist; avoid unbounded data/log surfaces.
-- Core's current protocol is a release candidate (`1.0-rc`), despite the presence of working prerelease SDKs.
+A `document.event` carries `type`, `element` (nearest ancestor with an `id`), `path` (ids on the bubbling route) and, **for the event target's own control state**, `value` (text controls and `<select>`) and `checked` (checkable inputs), plus `is_composing`, `input_type`, `key`, etc. Clicking a `<label for>` delivers `change` with the checkbox as target. The UI therefore reads `value`/`checked` from the payload and uses the public getters only as a fallback.
 
-## Explicit exclusions
+## Failure semantics the UI relies on
 
-The UI must not import/call `nativehtmlkit.client`, `_bootstrap`, `RpcClient`, `app.rpc`, `document.window.app.rpc`, SDK private helpers, Rust crates, the CLI, low-level JSON-RPC, or host binaries directly.
+| Situation | SDK signal | UI behavior |
+|---|---|---|
+| Window closed / document replaced / `app.shutdown` delivered | `StaleDocumentError` (Python), `StaleObjectException` (PowerShell), `Window.closed` | dispose quietly; count `discarded_after_close` |
+| Quit or close already started on the host, `app.shutdown` not yet received | host RPC error `-32008` (invalid state) or `-32004` (closed); definite rejection, the write was not applied | same as above (seen in real runs when closing with pending updates) |
+| Timeout, disconnect, other RPC error, local client error | `RpcTimeoutError`/`RpcTimeoutException`, `DisconnectedError`, other codes | `dom_uncertain`, managed writes stop, error logged and re-raised by `sync()`; never retried or reported as success |
 
-If an SDK lacks a necessary public operation, create a minimal reproducer and file it in the parent Project bug register; do not route around the SDK.
+## Known SDK constraints (unchanged)
+
+- Callbacks are post-dispatch; prevent defaults ahead of time with the SDK's `prevent_default`/`Set-NativeHTMLKitPreventDefault`.
+- Bounded SDK queues can drop events (SDK counters: Python `rpc.dropped_notifications`, PowerShell `DroppedNotifications`); the UI cannot recover them and does not read those private counters. The UI's own queue reports `event_queue_dropped`.
+- Protocol v1 is still labelled `1.0-rc` in the Core 1.0.2 manifest.
+
+## Explicit exclusions (enforced by `tools/verify_boundaries.py`)
+
+No `nativehtmlkit.client`/`_bootstrap`/`_contract`/`launcher` imports, no `app.rpc`/`document.rpc`, no SDK private attributes (`_handlers`, `_windows`, `_retire`, ...), no subprocess/HTTP; in PowerShell no `Invoke-NativeHTMLKitRpc`, `Start-NativeHTMLKitRpc`, `Start-NativeHTMLKitHost`, `Register-NativeHTMLKitNotification`, `Add-Type`, `.Transport`, pump or `Retired/ShutdownRequested/Dispatching/Deferred` fields, no PS7-only syntax and no non-ASCII characters.
+
+If an SDK lacks a necessary public operation, file a minimal reproducer in the parent Project bug register; do not route around the SDK. No SDK or Core defect blocking the UI was found in this round.

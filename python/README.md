@@ -3,7 +3,7 @@
 Pure Python UI primitives over the public [`nativehtmlkit`](https://github.com/nativehtmlkit/nativehtmlkit-python) SDK.
 No dependency on Rust sources, Core internals, the CLI, Qt, Chromium, JavaScript, Node or web servers.
 
-- Python >=3.10; SDK prerelease `0.1.x` is required.
+- Python >=3.10; SDK `nativehtmlkit` `0.1.x` is required (qualified with 0.1.0; source-checked with 0.1.1).
 - Install a qualified `nativehtmlkit` platform wheel first, then `python -m pip install --no-index --no-deps ./dist/nativehtmlkit_ui-0.1.0-py3-none-any.whl`.
 - Host-first runner: `python -m nativehtmlkit run mymodule:main --name MyApp`; `main(app)` builds/mounts UI then returns; the SDK runner owns `app.run()`.
 - For a script using direct `Application.start()`, keep side effects after `start()`; SDK re-executes the script in its backend process.

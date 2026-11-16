@@ -1,6 +1,6 @@
 # Architecture decision record — NativeHTMLKit UI 0.1
 
-Date: 2026-11-16. Status: **implementation candidate** until qualified in the user's lab.
+Date: 2026-11-16. Status: **0.1.0 release candidate**, natively qualified on KDE Plasma Wayland and Windows Server 2022 with the published SDK 0.1.0 prereleases (see `docs/VERIFICATION.md`).
 
 ## Problem and scope
 
@@ -28,7 +28,9 @@ UI4ME 2.1 was inspiration and evidence of feasible features, not an obligation. 
 - `UI.post()` lets application background threads schedule UI state changes safely. `UI.sync()` is for test synchronization. Application management and native host lifecycle remain with `nativehtmlkit.Application`.
 - One `Document.on(type,...)` subscription per used event type; internal event delegation chooses the nearest handler matching `event.element` or `event.path`.
 - `UI.dispose()` unsubscribes document/window events, closes bindings, and stops the UI owner. After SDK shutdown, handles are retired and no further writes should occur.
-- An SDK write failure marks the managed DOM state **uncertain**. Further managed writes are suspended instead of pretending the DOM and state are synchronized. `ui.diagnostics` reports this condition.
+- An SDK write failure marks the managed DOM state **uncertain**. Further managed writes are suspended instead of pretending the DOM and state are synchronized. `ui.diagnostics` reports this condition. Exception: a definite "document is gone" outcome (stale handle, RPC `-32004`, `-32008` once shutdown began) disposes the UI quietly (`discarded_after_close`).
+- `on_shutdown` has no unsubscribe in SDK 0.1.0, so the UI registers a weak callback; the window observer is removed on dispose. Repeated mount/dispose cycles retain nothing.
+- SDK event callbacks never block or raise: on queue overflow the event is counted (`event_queue_dropped`) and logged once.
 
 ### Python tradeoffs
 
@@ -37,7 +39,9 @@ One owner thread/window and a small queue are intentionally simpler than a gener
 ## PowerShell runtime
 
 - Script functions build a lightweight element tree. `New-NHKUiState` offers `.Value`, `.Set()` and `.Subscribe()`; computed values declare their `-DependsOn` explicitly.
-- State listeners mark bindings dirty. During one native event callback, mutations are deferred until `finally`, then compatible operations are batched. External state updates on the runspace flush synchronously.
+- State listeners mark bindings dirty. During one native event callback, mutations are deferred until `finally`, then compatible operations are batched. A change made outside a callback is written once when the outermost `State.Set()` returns (so a cascade through computed states is one write); `Invoke-NHKUiBatch` defers a whole block of changes into one write.
+- SDK commands wait for their reply while pumping host messages. Outside a callback that pump can run a document callback in the middle of a UI write; `Sync-NHKUi` is therefore re-entrancy safe (nested calls only queue, the outer call drains in order, so an older value never overwrites a newer one).
+- **Closure scoping rule:** a scriptblock made with `.GetNewClosure()` is bound to a new dynamic module and cannot see this module's private functions. Internal callbacks are module-bound literals that receive a context object; the single closure passed to the SDK re-enters the module explicitly (`& $module Invoke-NHKUiEventInternal ...`). The supplied 0.1.0 candidate violated this rule and every bound update failed.
 - `Register-NativeHTMLKitDocumentEvent` is invoked once per relevant event type; one internal event router handles the component registry for that window (not an application extension registry).
 - All UI callbacks execute on the **existing owning SDK runspace**; the SDK's `Wait-NativeHTMLKit` pumps events and task completions. No second runspace/event loop/compiled helper is included.
 - Event callbacks receive `param($event, $data)`; `-Data` avoids requiring every consumer to create lexical closures for trivial tasks.
@@ -46,7 +50,7 @@ One owner thread/window and a small queue are intentionally simpler than a gener
 
 ### PowerShell tradeoffs
 
-PowerShell uses explicit computed dependencies, not implicit AST instrumentation. Updates initiated outside an event callback flush immediately. This is a language-appropriate simplification rather than a full duplicate of Python's scheduler. Its runtime behavior must be verified on PowerShell 7.2+ and Windows PowerShell 5.1; only source-level checks were possible in the preparation environment.
+PowerShell uses explicit computed dependencies, not implicit AST instrumentation. Updates initiated outside an event callback are written per outermost `Set` (about 5 ms per write with a real host); `Invoke-NHKUiBatch` is the explicit coalescing tool. This is a language-appropriate simplification rather than a full duplicate of Python's scheduler. Verified on PowerShell 7.7 (Linux and Windows) and Windows PowerShell 5.1 with real windows.
 
 ## Component model
 
@@ -71,14 +75,13 @@ A small set of layout helpers, display/input primitives and a text-only list sup
 
 No event sourcing, HTTP/SSE, universal forms/router, plugin contribution system, ViewSpec, virtual DOM/diff engine, browser, JavaScript, application storage, native binary repackaging or cross-language bridge. Those belong to applications or higher-level optional projects when justified.
 
-## Open questions to resolve in real GUI qualification
+## Questions answered by native qualification (2026-11-16)
 
-- Will the Python owner-thread dispatcher preserve interaction latency and ordering under bursty input, high update rates, and shutdown races? Measure and adjust only if evidenced.
-- Does the native renderer support all chosen CSS selectors/properties exactly as expected, including focus, layout breakpoints and `display:none` behavior?
-- Is PowerShell 5.1 closure capture reliable under the new module's delegated event handlers? Test actual SDK notifications and callbacks on Windows.
-- Are event payloads `value` and `checked` reliable for all supported control types? Fallback uses documented public getters.
-- Does native focus/caret/IME remain correct across programmatic and user-driven bound updates?
-- Does multiple-window lifetime/SDK `app.shutdown` retirement reliably dispose UI handles?
-- What SDK version constraints are appropriate after an actual compatibility matrix? Current prerelease `0.1.x` bounds are conservative.
+- Ordering/latency: clicks, typing (including 6 ms/key bursts) and 1000-update bursts kept order with no drops; a click after a burst reached state within ~0.1-0.6 s (`docs/VERIFICATION.md`).
+- CSS: every selector/property used is supported by Core 1.0.2 (`get_computed_style` reports `supported` and the expected values for all themes; breakpoints at 1300/900/620/360 px; `display:none`; focus outline).
+- PowerShell 5.1 closure capture: fixed (see the scoping rule above) and verified with real windows on 5.1 and 7.
+- Event payloads: `value`/`checked` are present for the target control; the getter fallback is kept.
+- Caret: a mid-text edit keeps the caret (no echo write) on both platforms. IME composition was **not** exercised (no IME on the lab desktops).
+- Multiple windows and `app.shutdown` retirement dispose UIs correctly; closing with pending updates exits cleanly.
 
 Any required SDK/Core change must be filed in the parent Project bug register with a minimal reproduction, observed/expected behavior, and clear ownership. Do not conceal shortcomings with private SDK access.
