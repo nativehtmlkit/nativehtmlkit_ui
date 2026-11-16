@@ -1,6 +1,6 @@
 # nativehtmlkit_ui — Python UI toolkit
 
-Small reactive layouts over the public [nativehtmlkit Python SDK](https://pypi.org/project/nativehtmlkit/). Python 3.10+, NativeHTMLKit SDK 0.1.x. **Version 0.1.0 is a GitHub prerelease**; check [GitHub Releases](https://github.com/nativehtmlkit/nativehtmlkit_ui/releases) before assuming PyPI availability.
+Small reactive layouts over the public [nativehtmlkit Python SDK](https://pypi.org/project/nativehtmlkit/). Python 3.10+, NativeHTMLKit SDK 0.1.x. Install with `python -m pip install nativehtmlkit_ui`. **Version 0.1.1 is an early (pre-1.0) release**; see [GitHub Releases](https://github.com/nativehtmlkit/nativehtmlkit_ui/releases) and the [known limitations](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/docs/LIMITATIONS.md).
 
 ```python
 from nativehtmlkit import Application
@@ -16,7 +16,7 @@ with Application.start(name='Hello UI') as app:
     app.run()
 ```
 
-Use the [full examples](https://github.com/nativehtmlkit/nativehtmlkit_ui/tree/main/examples/python) or the [public gallery](https://github.com/nativehtmlkit/nativehtmlkit/blob/main/examples/python-ui/gallery.py). The toolkit supplies buttons, forms and state, not a generic background job scheduler. Use `ui.post()` to return background results to the UI owner. Known computed-state concurrency defect is documented in [limitations](../docs/LIMITATIONS.md). A UI `<dialog>` wrapper is not provided; use the SDK if you need a native HTML dialog.
+Use the [full examples](https://github.com/nativehtmlkit/nativehtmlkit_ui/tree/main/examples/python) or the [public gallery](https://github.com/nativehtmlkit/nativehtmlkit/blob/main/examples/python-ui/gallery.py). The toolkit supplies buttons, forms and state, not a generic background job scheduler. Use `ui.post()` to return background results to the UI owner. Known computed-state concurrency defect is documented in [limitations](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/docs/LIMITATIONS.md). A UI `<dialog>` wrapper is not provided; use the SDK if you need a native HTML dialog.
 
 ![Illustrative NativeHTMLKit component gallery, not an actual screenshot](https://raw.githubusercontent.com/nativehtmlkit/nativehtmlkit/main/assets/demo-placeholder.png)
 

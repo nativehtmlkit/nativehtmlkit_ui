@@ -1,6 +1,6 @@
 # NativeHTMLKit.UI — PowerShell UI toolkit
 
-A compact component layer using only the public [NativeHTMLKit PowerShell SDK](https://www.powershellgallery.com/packages/NativeHTMLKit). PowerShell 7.2+ (Linux and Windows) and Windows PowerShell 5.1 (Windows). **The 0.1.0 UI build is a prerelease**; check Gallery and GitHub Releases for the currently available package.
+A compact component layer using only the public [NativeHTMLKit PowerShell SDK](https://www.powershellgallery.com/packages/NativeHTMLKit). PowerShell 7.2+ (Linux and Windows) and Windows PowerShell 5.1 (Windows). Install with `Install-Module NativeHTMLKit.UI -Scope CurrentUser` (installs the `NativeHTMLKit` SDK as a dependency). **Version 0.1.1 is an early (pre-1.0) release**; see the [known limitations](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/docs/LIMITATIONS.md).
 
 ```powershell
 Import-Module NativeHTMLKit.UI

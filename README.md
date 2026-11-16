@@ -21,7 +21,7 @@ with Application.start(name='UI Quick Start') as app:
     app.run()
 ```
 
-The UI library is a **GitHub v0.1.0 prerelease**, not a promise of stable feature parity or fully qualified screen-reader support. See [current limitations](docs/LIMITATIONS.md).
+The UI library is an **early v0.1.1 release** (GitHub prerelease; PyPI `nativehtmlkit_ui`, PowerShell Gallery `NativeHTMLKit.UI`), not a promise of stable feature parity or fully qualified screen-reader support. See [current limitations](docs/LIMITATIONS.md).
 
 ## PowerShell
 

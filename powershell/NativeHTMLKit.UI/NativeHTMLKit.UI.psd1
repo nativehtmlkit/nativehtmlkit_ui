@@ -1,11 +1,11 @@
 @{
     RootModule = 'NativeHTMLKit.UI.psm1'
-    ModuleVersion = '0.1.0'
+    ModuleVersion = '0.1.1'
     GUID = '5960cbe6-d2d1-47f6-b38d-664a743ff437'
     Author = 'NativeHTMLKit contributors'
     CompanyName = 'NativeHTMLKit'
     Copyright = '(c) NativeHTMLKit contributors'
-    Description = 'Minimal responsive and reactive UI toolkit over the public NativeHTMLKit PowerShell SDK.'
+    Description = 'Compact reactive PowerShell desktop UI over the public NativeHTMLKit SDK. Buttons, inputs, layouts, state and list components. Quick start and gallery: https://github.com/nativehtmlkit/nativehtmlkit . API: https://github.com/nativehtmlkit/nativehtmlkit_ui .'
     PowerShellVersion = '5.1'
     RequiredModules = @(@{ModuleName='NativeHTMLKit';ModuleVersion='0.1.0'})
     FunctionsToExport = @(
@@ -18,5 +18,5 @@
     CmdletsToExport = @()
     VariablesToExport = @()
     AliasesToExport = @()
-    PrivateData = @{PSData=@{Tags=@('NativeHTMLKit','UI','Desktop','Reactive');LicenseUri='https://opensource.org/licenses/MIT'}}
+    PrivateData = @{PSData=@{Tags=@('NativeHTMLKit','UI','Desktop','Reactive');LicenseUri='https://opensource.org/licenses/MIT';ProjectUri='https://github.com/nativehtmlkit/nativehtmlkit_ui';ReleaseNotes='0.1.1: documentation and onboarding update; no new component API claims.'}}
 }

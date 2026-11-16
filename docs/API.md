@@ -1,4 +1,4 @@
-# UI library public API — version 0.1.0
+# UI library public API — version 0.1.1
 
 This reference documents the **actual small component surface**, not future roadmap concepts. It covers the Python `nativehtmlkit_ui` and PowerShell `NativeHTMLKit.UI` packages. Both depend solely on their respective **public** NativeHTMLKit SDK APIs. The UI package was published as a GitHub v0.1.0 **prerelease**, and its interactive qualification was against SDK 0.1.0/Core 1.0.2; current SDK 0.1.1/Core 1.0.3 combinations need renewed GUI verification.
 

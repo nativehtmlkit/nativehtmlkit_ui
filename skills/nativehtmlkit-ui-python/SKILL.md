@@ -5,7 +5,7 @@ description: Build compact reactive desktop components using nativehtmlkit_ui ov
 
 # NativeHTMLKit Python UI
 
-This is an optional **0.1.0 prerelease** component layer using the public `nativehtmlkit` SDK. Use it for state, layouts, inputs and lists, not for private Core operations.
+This is an optional **0.1.1 prerelease** component layer using the public `nativehtmlkit` SDK. Use it for state, layouts, inputs and lists, not for private Core operations.
 
 ```python
 from nativehtmlkit import Application
