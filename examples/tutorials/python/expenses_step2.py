@@ -1,6 +1,6 @@
 """Expense tracker tutorial, step 2: add expenses to a list state and remove the last one.
 
-Run:  python expenses_step2.py      (docs/python/tutorials/expense-tracker.md)
+Run:  uv run expenses_step2.py      (docs/python/tutorials/expense-tracker.md)
 """
 from nativehtmlkit_ui import UI, state
 

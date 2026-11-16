@@ -4,7 +4,7 @@ Teaches: one computed snapshot of many controls, dirty tracking by comparing it 
 saved snapshot, writing state back into inputs/selects/checkboxes (Revert, Defaults) and
 enabling buttons only when they would do something. Replace save() with your own persistence.
 
-Run:  python settings.py      (pip install nativehtmlkit_ui)
+Run:  uv run settings.py      (uv add nativehtmlkit_ui)
 """
 from datetime import datetime
 

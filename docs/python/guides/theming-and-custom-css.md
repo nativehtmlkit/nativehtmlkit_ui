@@ -21,8 +21,8 @@ with different arguments. It uses `Application.start(instance="multiple")`, so s
 can run side by side:
 
 ```text
-python theme_preview.py cobalt compact
-python theme_preview.py daylight comfortable "#0f7b6c"
+uv run theme_preview.py cobalt compact
+uv run theme_preview.py daylight comfortable "#0f7b6c"
 ```
 
 ## Override design tokens

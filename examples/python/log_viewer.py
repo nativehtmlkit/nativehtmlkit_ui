@@ -4,7 +4,7 @@ Teaches: a worker thread that hands every result to the UI owner with ui.post(),
 history, a computed filtered view rendered with text_list (all text is escaped), counters,
 pausing without losing lines, and stopping the worker from app.on_shutdown().
 
-Run:  python log_viewer.py      (pip install nativehtmlkit_ui)
+Run:  uv run log_viewer.py      (uv add nativehtmlkit_ui)
 """
 import threading
 from datetime import datetime

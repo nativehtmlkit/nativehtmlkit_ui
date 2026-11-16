@@ -3,8 +3,8 @@
 Teaches: state() and computed(), text bound to a lambda, a two-way input and checkbox, a reactive
 text list shown or hidden with ui.when(), and a responsive card grid.
 
-Run:  python counter.py      (pip install nativehtmlkit_ui)
-  or: python -m nativehtmlkit run counter:main --name Counter   (from this directory)
+Run:  uv run counter.py      (uv add nativehtmlkit_ui)
+  or: uv run -m nativehtmlkit run counter:main --name Counter   (from this directory)
 """
 from nativehtmlkit_ui import UI, state, computed
 

@@ -35,11 +35,14 @@ Tutorial steps: [`tutorials/python`](tutorials/python) and [`tutorials/powershel
 
 ## Running
 
-Python 3.10+:
+Python, with [uv](https://docs.astral.sh/uv/getting-started/installation/): run the examples from a uv project that has the UI library. Copy an
+example into the project and run it:
 
 ```bash
-python -m pip install nativehtmlkit_ui
-python examples/python/expenses.py
+uv init --app nhk-ui-examples && cd nhk-ui-examples
+uv add nativehtmlkit_ui
+cp ../nativehtmlkit_ui/examples/python/expenses.py .     # from a clone of this repository
+uv run expenses.py
 ```
 
 PowerShell 7.2+ (Linux, Windows) or Windows PowerShell 5.1:

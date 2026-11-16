@@ -25,7 +25,7 @@ with Application.start(name='UI Quick Start') as app:
     app.run()
 ```
 
-`python -m pip install nativehtmlkit_ui` (Python 3.10+, Linux and Windows).
+In a uv project (`uv init --app myapp && cd myapp`): `uv add nativehtmlkit_ui`, then `uv run app.py` (Python 3.10+, Linux and Windows).
 
 ## PowerShell
 

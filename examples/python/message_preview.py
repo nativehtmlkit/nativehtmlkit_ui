@@ -5,7 +5,7 @@ Teaches: the trust boundary. Everything a user types reaches the window through 
 ui.raw_html() is used only for a fixed, developer-written snippet. Also: a length limit with a
 computed counter and a sent-messages list.
 
-Run:  python message_preview.py      (pip install nativehtmlkit_ui)
+Run:  uv run message_preview.py      (uv add nativehtmlkit_ui)
 """
 from nativehtmlkit_ui import UI, computed, state
 

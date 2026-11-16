@@ -2,7 +2,7 @@
 
 Teaches: UI, state(), two-way ui.input / ui.select / ui.checkbox, computed() with automatic
          dependency tracking, a bound ui.text, mount/run/dispose.
-Run:     python settings_editor_step1.py
+Run:     uv run settings_editor_step1.py
 Guide:   docs/python/tutorials/settings-editor.md (step 1 of 2)
 """
 from nativehtmlkit import Application

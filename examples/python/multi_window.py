@@ -6,7 +6,7 @@ closes with app.on_window_event (marshalled to the UI owner with ui.post); closi
 from code. Each inspector is a new UI; mounting one registers an SDK shutdown callback, so this
 example caps the number of inspectors (see the B-0003 limitation).
 
-Run:  python multi_window.py      (pip install nativehtmlkit_ui)
+Run:  uv run multi_window.py      (uv add nativehtmlkit_ui)
 """
 from nativehtmlkit_ui import UI, computed, state
 

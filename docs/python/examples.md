@@ -31,7 +31,7 @@ The first window: a greeting that follows a text field, and a Reset button.
 
 **Teaches:** state and computed values, two-way input, button handler, application lifecycle.
 
-**Run:** `python hello.py` (source: [`examples/python/hello.py`](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/examples/python/hello.py))
+**Run:** `uv run hello.py` (source: [`examples/python/hello.py`](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/examples/python/hello.py))
 
 Related guide: [reactive state](guides/reactive-state.md).
 
@@ -44,7 +44,7 @@ Related guide: [reactive state](guides/reactive-state.md).
 
 Teaches: Application.start(), state() and computed(), a heading bound to a computed value, a
 two-way input, a button that sets state, mount/run/dispose behind the script entry point.
-Run:     python hello.py      (pip install nativehtmlkit_ui)
+Run:     uv run hello.py      (uv add nativehtmlkit_ui)
 Guide:   docs/python/getting-started.md
 """
 from nativehtmlkit import Application
@@ -83,7 +83,7 @@ The smallest tour of state, computed text, buttons, an input, a checkbox and a l
 
 **Teaches:** state and computed values, bound text, two-way input and checkbox, when regions, grid.
 
-**Run:** `python counter.py` (source: [`examples/python/counter.py`](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/examples/python/counter.py))
+**Run:** `uv run counter.py` (source: [`examples/python/counter.py`](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/examples/python/counter.py))
 
 Related guide: [reactive state](guides/reactive-state.md).
 
@@ -97,8 +97,8 @@ Related guide: [reactive state](guides/reactive-state.md).
 Teaches: state() and computed(), text bound to a lambda, a two-way input and checkbox, a reactive
 text list shown or hidden with ui.when(), and a responsive card grid.
 
-Run:  python counter.py      (pip install nativehtmlkit_ui)
-  or: python -m nativehtmlkit run counter:main --name Counter   (from this directory)
+Run:  uv run counter.py      (uv add nativehtmlkit_ui)
+  or: uv run -m nativehtmlkit run counter:main --name Counter   (from this directory)
 """
 from nativehtmlkit_ui import UI, state, computed
 
@@ -154,7 +154,7 @@ Add expenses, remove the last one, filter by category and see totals (expense-tr
 
 **Teaches:** two-way inputs and select, validation, computed totals and filter, empty state.
 
-**Run:** `python expenses.py` (source: [`examples/python/expenses.py`](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/examples/python/expenses.py))
+**Run:** `uv run expenses.py` (source: [`examples/python/expenses.py`](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/examples/python/expenses.py))
 
 Built step by step in the [expense tracker tutorial](tutorials/expense-tracker.md).
 
@@ -171,7 +171,7 @@ Teaches: state + computed values, two-way input/select binding, a disabled butto
 computed value, a filtered text list, an empty-state region with ui.when(), and Decimal input
 validation. This is the finished app of docs/python/tutorials/expense-tracker.md.
 
-Run:  python expenses.py      (pip install nativehtmlkit_ui)
+Run:  uv run expenses.py      (uv add nativehtmlkit_ui)
 """
 from decimal import Decimal, InvalidOperation
 
@@ -263,7 +263,7 @@ Tasks with Done/Remove buttons per row and an All/Open/Done filter.
 
 **Teaches:** slot pool for rows with buttons, bound button labels, computed counts.
 
-**Run:** `python todo.py` (source: [`examples/python/todo.py`](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/examples/python/todo.py))
+**Run:** `uv run todo.py` (source: [`examples/python/todo.py`](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/examples/python/todo.py))
 
 Related guide: [lists and conditional content](guides/lists-and-conditional-content.md).
 
@@ -278,7 +278,7 @@ Teaches: the "slot pool" pattern. The UI tree is fixed once mounted, so the app 
 MAX_TASKS rows up front and shows, hides and relabels them from state (ui.when + bound text +
 bound button labels). Also: computed counts, a disabled Add button and "Clear done".
 
-Run:  python todo.py      (pip install nativehtmlkit_ui)
+Run:  uv run todo.py      (uv add nativehtmlkit_ui)
 """
 from itertools import count
 
@@ -362,7 +362,7 @@ Live validation, a guarded submit button, a confirmation screen and reset.
 
 **Teaches:** validation as computed state, guarded submit, form/confirmation swap, reset by setting states.
 
-**Run:** `python signup_form.py` (source: [`examples/python/signup_form.py`](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/examples/python/signup_form.py))
+**Run:** `uv run signup_form.py` (source: [`examples/python/signup_form.py`](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/examples/python/signup_form.py))
 
 Related guide: [forms and inputs](guides/forms-and-inputs.md).
 
@@ -377,7 +377,7 @@ Teaches: validation as a computed list of messages (no DOM reads), showing error
 fields the user has typed in, a submit button disabled until the form is valid, swapping the
 form and a confirmation with ui.when(), and resetting every control by setting its state.
 
-Run:  python signup_form.py      (pip install nativehtmlkit_ui)
+Run:  uv run signup_form.py      (uv add nativehtmlkit_ui)
 """
 import re
 
@@ -469,7 +469,7 @@ Save, Revert and Restore defaults with an unsaved-changes indicator.
 
 **Teaches:** dirty tracking with a computed snapshot, writing state back into controls, nested when regions.
 
-**Run:** `python settings.py` (source: [`examples/python/settings.py`](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/examples/python/settings.py))
+**Run:** `uv run settings.py` (source: [`examples/python/settings.py`](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/examples/python/settings.py))
 
 Related guide: [reactive state](guides/reactive-state.md).
 
@@ -484,7 +484,7 @@ Teaches: one computed snapshot of many controls, dirty tracking by comparing it 
 saved snapshot, writing state back into inputs/selects/checkboxes (Revert, Defaults) and
 enabling buttons only when they would do something. Replace save() with your own persistence.
 
-Run:  python settings.py      (pip install nativehtmlkit_ui)
+Run:  uv run settings.py      (uv add nativehtmlkit_ui)
 """
 from datetime import datetime
 
@@ -569,7 +569,7 @@ Edit, validate and save a JSON settings file; the saved theme applies on the nex
 
 **Teaches:** initial state from a file, computed validation message, atomic JSON save, revert from disk.
 
-**Run:** `python settings_editor.py [PATH]` (source: [`examples/python/settings_editor.py`](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/examples/python/settings_editor.py))
+**Run:** `uv run settings_editor.py [PATH]` (source: [`examples/python/settings_editor.py`](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/examples/python/settings_editor.py))
 
 Built step by step in the [settings editor tutorial](tutorials/settings-editor.md).
 
@@ -585,7 +585,7 @@ Related guide: [forms and inputs](guides/forms-and-inputs.md).
 Teaches: loading initial state from a file, a computed validation message and an "unsaved
 changes" badge, buttons that save (atomically) and revert, a status alert, and starting the UI
 in the theme the user saved.
-Run:     python settings_editor.py [PATH]
+Run:     uv run settings_editor.py [PATH]
          (default file: nativehtmlkit-settings.json in your application-data folder:
          %APPDATA% on Windows, $XDG_CONFIG_HOME or ~/.config on Linux)
 Guide:   docs/python/tutorials/settings-editor.md (step 2 of 2)
@@ -733,7 +733,7 @@ A background producer streams log lines; filter by level and text, pause and cle
 
 **Teaches:** streaming background producer, bounded history, filtered text list, pause.
 
-**Run:** `python log_viewer.py` (source: [`examples/python/log_viewer.py`](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/examples/python/log_viewer.py))
+**Run:** `uv run log_viewer.py` (source: [`examples/python/log_viewer.py`](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/examples/python/log_viewer.py))
 
 Related guide: [background work](guides/background-work.md).
 
@@ -748,7 +748,7 @@ Teaches: a worker thread that hands every result to the UI owner with ui.post(),
 history, a computed filtered view rendered with text_list (all text is escaped), counters,
 pausing without losing lines, and stopping the worker from app.on_shutdown().
 
-Run:  python log_viewer.py      (pip install nativehtmlkit_ui)
+Run:  uv run log_viewer.py      (uv add nativehtmlkit_ui)
 """
 import threading
 from datetime import datetime
@@ -845,7 +845,7 @@ Run a slow calculation off the UI thread and report the result; cancel it.
 
 **Teaches:** Python executor and ui.post(), PowerShell Start-NativeHTMLKitTask, busy flag, cancel.
 
-**Run:** `python background.py` (source: [`examples/python/background.py`](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/examples/python/background.py))
+**Run:** `uv run background.py` (source: [`examples/python/background.py`](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/examples/python/background.py))
 
 Related guide: [background work](guides/background-work.md).
 
@@ -861,7 +861,7 @@ result (or the error) back to the UI owner with ui.post(); a busy flag that disa
 a Cancel button that sets a threading.Event the worker checks; shutting the executor down from
 app.on_shutdown().
 
-Run:  python background.py      (pip install nativehtmlkit_ui)
+Run:  uv run background.py      (uv add nativehtmlkit_ui)
 """
 import threading
 from concurrent.futures import ThreadPoolExecutor
@@ -932,7 +932,7 @@ Count words in a text file in the background with progress, Cancel and a top-ten
 
 **Teaches:** background work with progress, cancellation, merging partial results, throttled updates.
 
-**Run:** `python word_counter.py [FILE]` (source: [`examples/python/word_counter.py`](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/examples/python/word_counter.py))
+**Run:** `uv run word_counter.py [FILE]` (source: [`examples/python/word_counter.py`](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/examples/python/word_counter.py))
 
 Related guide: [background work](guides/background-work.md).
 
@@ -946,7 +946,7 @@ Related guide: [background work](guides/background-work.md).
 Teaches: starting background work from a button, handing progress and results back to the UI
 owner with ui.post(), throttled progress (at most five updates per second), a Cancel button
 driven by a threading.Event, and a busy state that disables Count while the worker runs.
-Run:     python word_counter.py [FILE]   (without FILE it counts 20,000 lines of generated text)
+Run:     uv run word_counter.py [FILE]   (without FILE it counts 20,000 lines of generated text)
 Guide:   docs/python/guides/background-work.md
 """
 import re
@@ -1043,7 +1043,7 @@ Transform text and copy or paste it with the SDK clipboard, handling unavailabil
 
 **Teaches:** SDK clipboard calls from UI handlers, error handling, computed preview.
 
-**Run:** `python clipboard_tool.py` (source: [`examples/python/clipboard_tool.py`](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/examples/python/clipboard_tool.py))
+**Run:** `uv run clipboard_tool.py` (source: [`examples/python/clipboard_tool.py`](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/examples/python/clipboard_tool.py))
 
 Related guide: [mixing ui and sdk calls](guides/mixing-ui-and-sdk-calls.md).
 
@@ -1058,7 +1058,7 @@ Teaches: calling public SDK services (app.set_clipboard_text / app.clipboard_tex
 event handler, reporting SDK errors in the UI instead of crashing (the clipboard is
 unavailable in headless test mode, error -32001), and a computed live preview.
 
-Run:  python clipboard_tool.py      (pip install nativehtmlkit_ui)
+Run:  uv run clipboard_tool.py      (uv add nativehtmlkit_ui)
 """
 import re
 
@@ -1131,7 +1131,7 @@ Pick files with the native open dialog and list their sizes and a total.
 
 **Teaches:** SDK file dialog from the UI, cancel and error paths, busy flag.
 
-**Run:** `python file_picker.py` (source: [`examples/python/file_picker.py`](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/examples/python/file_picker.py))
+**Run:** `uv run file_picker.py` (source: [`examples/python/file_picker.py`](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/examples/python/file_picker.py))
 
 Related guide: [mixing ui and sdk calls](guides/mixing-ui-and-sdk-calls.md).
 
@@ -1146,7 +1146,7 @@ Teaches: an SDK dialog started without blocking the UI (window.open_files(wait=F
 future), handing its result back with ui.post(), a busy flag that disables the button while the
 dialog is open, cancel and error handling (dialogs are unavailable in headless test mode).
 
-Run:  python file_picker.py      (pip install nativehtmlkit_ui)
+Run:  uv run file_picker.py      (uv add nativehtmlkit_ui)
 """
 from pathlib import Path
 
@@ -1226,7 +1226,7 @@ Several windows bound to the same state; open, track and close inspector windows
 
 **Teaches:** several UIs in one application, shared state, window events, closing windows from code.
 
-**Run:** `python multi_window.py` (source: [`examples/python/multi_window.py`](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/examples/python/multi_window.py))
+**Run:** `uv run multi_window.py` (source: [`examples/python/multi_window.py`](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/examples/python/multi_window.py))
 
 Related guide: [multiple windows](guides/multiple-windows.md).
 
@@ -1243,7 +1243,7 @@ closes with app.on_window_event (marshalled to the UI owner with ui.post); closi
 from code. Each inspector is a new UI; mounting one registers an SDK shutdown callback, so this
 example caps the number of inspectors (see the B-0003 limitation).
 
-Run:  python multi_window.py      (pip install nativehtmlkit_ui)
+Run:  uv run multi_window.py      (uv add nativehtmlkit_ui)
 """
 from nativehtmlkit_ui import UI, computed, state
 
@@ -1316,7 +1316,7 @@ A responsive card grid with a live clock and disk usage, themed with extra CSS.
 
 **Teaches:** responsive grid, themes and density, extra CSS, one-second timer.
 
-**Run:** `python dashboard.py [cobalt|graphite|daylight]` (source: [`examples/python/dashboard.py`](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/examples/python/dashboard.py))
+**Run:** `uv run dashboard.py [cobalt|graphite|daylight]` (source: [`examples/python/dashboard.py`](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/examples/python/dashboard.py))
 
 Related guide: [layouts](guides/layouts.md).
 
@@ -1331,7 +1331,7 @@ Teaches: ui.grid() (3 columns, 2 below 1000 px, 1 below 620 px), theme and densi
 extra_css with your own classes and token overrides, ui.element() for a custom-styled tag, and
 a periodic timer thread that updates state through ui.post().
 
-Run:  python dashboard.py [cobalt|graphite|daylight]      (pip install nativehtmlkit_ui)
+Run:  uv run dashboard.py [cobalt|graphite|daylight]      (uv add nativehtmlkit_ui)
 """
 import os
 import platform
@@ -1437,7 +1437,7 @@ Every component in a chosen theme and density, with an optional custom accent co
 
 **Teaches:** themes and densities, overriding design tokens with extra CSS, several instances side by side.
 
-**Run:** `python theme_preview.py [cobalt|graphite|daylight] [compact|regular|comfortable] [#RRGGBB]` (source: [`examples/python/theme_preview.py`](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/examples/python/theme_preview.py))
+**Run:** `uv run theme_preview.py [cobalt|graphite|daylight] [compact|regular|comfortable] [#RRGGBB]` (source: [`examples/python/theme_preview.py`](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/examples/python/theme_preview.py))
 
 Related guide: [theming and custom css](guides/theming-and-custom-css.md).
 
@@ -1451,7 +1451,7 @@ Related guide: [theming and custom css](guides/theming-and-custom-css.md).
 Teaches: UI(theme=..., density=..., extra_css=...), overriding the library's CSS custom properties
 (--nhk-accent and friends) for one theme, and the main components side by side.
 instance="multiple" lets you start several previews at once and compare them.
-Run:     python theme_preview.py [cobalt|graphite|daylight] [compact|regular|comfortable] [#RRGGBB]
+Run:     uv run theme_preview.py [cobalt|graphite|daylight] [compact|regular|comfortable] [#RRGGBB]
 Guide:   docs/python/guides/theming-and-custom-css.md
 """
 import re
@@ -1522,7 +1522,7 @@ Untrusted typed text is always escaped; only fixed help markup is inserted as HT
 
 **Teaches:** escaping untrusted text, trusted static markup, length limit.
 
-**Run:** `python message_preview.py` (source: [`examples/python/message_preview.py`](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/examples/python/message_preview.py))
+**Run:** `uv run message_preview.py` (source: [`examples/python/message_preview.py`](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/examples/python/message_preview.py))
 
 Related guide: [trusted and untrusted content](guides/trusted-and-untrusted-content.md).
 
@@ -1538,7 +1538,7 @@ Teaches: the trust boundary. Everything a user types reaches the window through 
 ui.raw_html() is used only for a fixed, developer-written snippet. Also: a length limit with a
 computed counter and a sent-messages list.
 
-Run:  python message_preview.py      (pip install nativehtmlkit_ui)
+Run:  uv run message_preview.py      (uv add nativehtmlkit_ui)
 """
 from nativehtmlkit_ui import UI, computed, state
 

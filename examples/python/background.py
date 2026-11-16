@@ -5,7 +5,7 @@ result (or the error) back to the UI owner with ui.post(); a busy flag that disa
 a Cancel button that sets a threading.Event the worker checks; shutting the executor down from
 app.on_shutdown().
 
-Run:  python background.py      (pip install nativehtmlkit_ui)
+Run:  uv run background.py      (uv add nativehtmlkit_ui)
 """
 import threading
 from concurrent.futures import ThreadPoolExecutor

@@ -2,7 +2,7 @@
 
 Teaches: Application.start(), state() and computed(), a heading bound to a computed value, a
 two-way input, a button that sets state, mount/run/dispose behind the script entry point.
-Run:     python hello.py      (pip install nativehtmlkit_ui)
+Run:     uv run hello.py      (uv add nativehtmlkit_ui)
 Guide:   docs/python/getting-started.md
 """
 from nativehtmlkit import Application

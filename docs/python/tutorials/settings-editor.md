@@ -22,7 +22,7 @@ Create `settings_editor.py`:
 
 Teaches: UI, state(), two-way ui.input / ui.select / ui.checkbox, computed() with automatic
          dependency tracking, a bound ui.text, mount/run/dispose.
-Run:     python settings_editor_step1.py
+Run:     uv run settings_editor_step1.py
 Guide:   docs/python/tutorials/settings-editor.md (step 1 of 2)
 """
 from nativehtmlkit import Application
@@ -60,7 +60,7 @@ if __name__ == "__main__":
     main()
 ```
 
-Run `python settings_editor.py` and edit the fields: the summary below follows every change.
+Run `uv run settings_editor.py` and edit the fields: the summary below follows every change.
 
 - Each `state()` holds one setting. `ui.input(name, ...)` is two-way; `kind="email"` gives an
   e-mail field.
@@ -82,7 +82,7 @@ Replace the file with the final version:
 Teaches: loading initial state from a file, a computed validation message and an "unsaved
 changes" badge, buttons that save (atomically) and revert, a status alert, and starting the UI
 in the theme the user saved.
-Run:     python settings_editor.py [PATH]
+Run:     uv run settings_editor.py [PATH]
          (default file: nativehtmlkit-settings.json in your application-data folder:
          %APPDATA% on Windows, $XDG_CONFIG_HOME or ~/.config on Linux)
 Guide:   docs/python/tutorials/settings-editor.md (step 2 of 2)
@@ -220,8 +220,8 @@ if __name__ == "__main__":
     main()
 ```
 
-Run it with `python settings_editor.py` or with a file of your choice:
-`python settings_editor.py ./my-settings.json`.
+Run it with `uv run settings_editor.py` or with a file of your choice:
+`uv run settings_editor.py ./my-settings.json`.
 
 - Without an argument the file is `nativehtmlkit-settings.json` in your application-data folder
   (`%APPDATA%` on Windows, `$XDG_CONFIG_HOME` or `~/.config` on Linux). The PowerShell version of

@@ -4,7 +4,7 @@ Teaches: the "slot pool" pattern. The UI tree is fixed once mounted, so the app 
 MAX_TASKS rows up front and shows, hides and relabels them from state (ui.when + bound text +
 bound button labels). Also: computed counts, a disabled Add button and "Clear done".
 
-Run:  python todo.py      (pip install nativehtmlkit_ui)
+Run:  uv run todo.py      (uv add nativehtmlkit_ui)
 """
 from itertools import count
 

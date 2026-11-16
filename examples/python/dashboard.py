@@ -4,7 +4,7 @@ Teaches: ui.grid() (3 columns, 2 below 1000 px, 1 below 620 px), theme and densi
 extra_css with your own classes and token overrides, ui.element() for a custom-styled tag, and
 a periodic timer thread that updates state through ui.post().
 
-Run:  python dashboard.py [cobalt|graphite|daylight]      (pip install nativehtmlkit_ui)
+Run:  uv run dashboard.py [cobalt|graphite|daylight]      (uv add nativehtmlkit_ui)
 """
 import os
 import platform

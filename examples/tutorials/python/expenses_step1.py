@@ -1,6 +1,6 @@
 """Expense tracker tutorial, step 1: a window with two bound inputs and a live preview.
 
-Run:  python expenses_step1.py      (docs/python/tutorials/expense-tracker.md)
+Run:  uv run expenses_step1.py      (docs/python/tutorials/expense-tracker.md)
 """
 from nativehtmlkit_ui import UI, state
 

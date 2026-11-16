@@ -4,7 +4,7 @@ Teaches: calling public SDK services (app.set_clipboard_text / app.clipboard_tex
 event handler, reporting SDK errors in the UI instead of crashing (the clipboard is
 unavailable in headless test mode, error -32001), and a computed live preview.
 
-Run:  python clipboard_tool.py      (pip install nativehtmlkit_ui)
+Run:  uv run clipboard_tool.py      (uv add nativehtmlkit_ui)
 """
 import re
 

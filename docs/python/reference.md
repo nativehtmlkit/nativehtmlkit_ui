@@ -329,7 +329,7 @@ show those with text components, which escape them. See the
 ### `ui.mount(app) -> UI`
 
 `app` is a connected SDK `Application` (from `Application.start()` or the
-`python -m nativehtmlkit run module:main` entry point). `mount()`:
+`uv run -m nativehtmlkit run module:main` entry point). `mount()`:
 
 1. Renders the document (`ui.html()`), and opens one window with
    `app.open_html(markup, title=, width=, height=)`.

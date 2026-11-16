@@ -3,7 +3,7 @@
 Teaches: UI(theme=..., density=..., extra_css=...), overriding the library's CSS custom properties
 (--nhk-accent and friends) for one theme, and the main components side by side.
 instance="multiple" lets you start several previews at once and compare them.
-Run:     python theme_preview.py [cobalt|graphite|daylight] [compact|regular|comfortable] [#RRGGBB]
+Run:     uv run theme_preview.py [cobalt|graphite|daylight] [compact|regular|comfortable] [#RRGGBB]
 Guide:   docs/python/guides/theming-and-custom-css.md
 """
 import re

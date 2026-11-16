@@ -6,7 +6,9 @@ rendered from HTML/CSS by the NativeHTMLKit host, with no browser and no JavaScr
 3.10+, NativeHTMLKit SDK 0.1.x, Linux (KDE Plasma Wayland) and Windows.
 
 ```bash
-python -m pip install nativehtmlkit_ui
+uv init --app myapp && cd myapp     # a project for your app (https://docs.astral.sh/uv/)
+uv add nativehtmlkit_ui
+uv run app.py
 ```
 
 **Version 0.1.1 is an early (pre-1.0) release**; see the

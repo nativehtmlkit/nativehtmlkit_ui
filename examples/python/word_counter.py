@@ -3,7 +3,7 @@
 Teaches: starting background work from a button, handing progress and results back to the UI
 owner with ui.post(), throttled progress (at most five updates per second), a Cancel button
 driven by a threading.Event, and a busy state that disables Count while the worker runs.
-Run:     python word_counter.py [FILE]   (without FILE it counts 20,000 lines of generated text)
+Run:     uv run word_counter.py [FILE]   (without FILE it counts 20,000 lines of generated text)
 Guide:   docs/python/guides/background-work.md
 """
 import re

@@ -13,13 +13,12 @@ The PowerShell version of this tutorial is [here](../../powershell/tutorials/exp
 
 ## Step 0: install and check
 
-You need Python 3.10+ on Linux (KDE Plasma Wayland is the primary desktop) or Windows.
+You need [uv](https://docs.astral.sh/uv/getting-started/installation/) on Linux (KDE Plasma Wayland is the primary desktop) or Windows.
 
 ```bash
-python -m venv .venv
-. .venv/bin/activate            # Windows: .venv\Scripts\activate
-python -m pip install nativehtmlkit_ui     # also installs the nativehtmlkit SDK with its native host
-python -c "import nativehtmlkit_ui; print(nativehtmlkit_ui.__version__)"    # 0.1.1
+uv init --app expenses && cd expenses
+uv add nativehtmlkit_ui         # also installs the nativehtmlkit SDK with its native host
+uv run python -c "import nativehtmlkit_ui; print(nativehtmlkit_ui.__version__)"    # 0.1.1
 ```
 
 ## Step 1: a window with bound inputs
@@ -52,7 +51,7 @@ if __name__ == "__main__":
         application.run()
 ```
 
-Run it with `python expenses.py` and type into both fields: the preview line follows every
+Run it with `uv run expenses.py` and type into both fields: the preview line follows every
 keystroke.
 
 What happened:

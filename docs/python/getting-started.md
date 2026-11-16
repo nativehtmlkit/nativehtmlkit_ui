@@ -8,19 +8,18 @@ without a browser engine or JavaScript, and uses only the public API of the
 
 ## Install
 
-You need Python 3.10 or later on Linux x64 (KDE Plasma Wayland is the primary desktop) or
-Windows x64.
+You need [uv](https://docs.astral.sh/uv/getting-started/installation/) on Linux x64 (KDE Plasma Wayland is the primary desktop) or Windows x64. uv
+provides Python 3.10 or later for the project if you have none.
 
 ```bash
-python -m venv .venv
-. .venv/bin/activate                         # Windows: .venv\Scripts\activate
-python -m pip install nativehtmlkit_ui       # also installs the nativehtmlkit SDK with its native host
-python -c "import nativehtmlkit_ui; print(nativehtmlkit_ui.__version__)"    # 0.1.1
+uv init --app hello && cd hello              # a project for your app
+uv add nativehtmlkit_ui                      # also installs the nativehtmlkit SDK with its native host
+uv run python -c "import nativehtmlkit_ui; print(nativehtmlkit_ui.__version__)"    # 0.1.1
 ```
 
 ## Your first window
 
-Save this as `hello.py` (it is the
+Save this as `hello.py` in the project folder (it is the
 [`hello` example](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/examples/python/hello.py)):
 
 ```python
@@ -53,7 +52,7 @@ if __name__ == "__main__":
 Run it:
 
 ```bash
-python hello.py
+uv run hello.py
 ```
 
 Type a name: the heading follows every keystroke. **Reset** sets the state back, and the input

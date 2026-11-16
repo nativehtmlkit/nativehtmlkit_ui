@@ -4,7 +4,7 @@ Teaches: state + computed values, two-way input/select binding, a disabled butto
 computed value, a filtered text list, an empty-state region with ui.when(), and Decimal input
 validation. This is the finished app of docs/python/tutorials/expense-tracker.md.
 
-Run:  python expenses.py      (pip install nativehtmlkit_ui)
+Run:  uv run expenses.py      (uv add nativehtmlkit_ui)
 """
 from decimal import Decimal, InvalidOperation
 

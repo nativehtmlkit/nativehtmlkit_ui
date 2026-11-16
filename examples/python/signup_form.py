@@ -4,7 +4,7 @@ Teaches: validation as a computed list of messages (no DOM reads), showing error
 fields the user has typed in, a submit button disabled until the form is valid, swapping the
 form and a confirmation with ui.when(), and resetting every control by setting its state.
 
-Run:  python signup_form.py      (pip install nativehtmlkit_ui)
+Run:  uv run signup_form.py      (uv add nativehtmlkit_ui)
 """
 import re
 

@@ -1,6 +1,6 @@
 """Expense tracker tutorial, step 3: categories, validated Decimal amounts and a guarded button.
 
-Run:  python expenses_step3.py      (docs/python/tutorials/expense-tracker.md)
+Run:  uv run expenses_step3.py      (docs/python/tutorials/expense-tracker.md)
 """
 from decimal import Decimal, InvalidOperation
 
