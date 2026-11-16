@@ -24,6 +24,7 @@ LOG = logging.getLogger(__name__)
 _ID = re.compile(r"^[A-Za-z][A-Za-z0-9_:\-.]*$")
 _ATTR = re.compile(r"^[A-Za-z_:][A-Za-z0-9_:.-]*$")
 _STOP = object()
+_GONE_CODES = (-32004, -32008)
 _UNSET = object()
 
 
@@ -97,6 +98,7 @@ class UI:
         self.app: Any = None
         self._updates = 0
         self._operations = 0
+        self._discarded = 0  # write batches dropped because the document was already gone
 
     def _id(self) -> str:
         self._index += 1
@@ -406,7 +408,8 @@ class UI:
             return {"errors": tuple(self._errors), "event_queue_dropped": self._dropped,
                     "pending_updates": len(self._dirty), "dom_uncertain": self._poisoned,
                     "updates": self._updates, "operations": self._operations,
-                    "subscriptions": len(self._subscriptions), "disposed": self._closed}
+                    "subscriptions": len(self._subscriptions), "disposed": self._closed,
+                    "discarded_after_close": self._discarded}
 
     def post(self, fn: Callable, *args: Any) -> None:
         if self._closed:
@@ -519,7 +522,9 @@ class UI:
         except Exception as exc:
             if self._document_gone(exc):
                 # The window closed or the app shut down: nothing left to keep in sync.
-                LOG.debug("NativeHTMLKit UI document is gone; disposing the UI")
+                LOG.debug("NativeHTMLKit UI document is gone (%s); disposing the UI", type(exc).__name__)
+                with self._lock:
+                    self._discarded += 1
                 self.dispose()
                 return
             with self._lock:
@@ -531,7 +536,14 @@ class UI:
         window = self.window
         if window is None or getattr(window, "closed", False) or getattr(window, "document", None) is not self.document:
             return True
-        return exc is not None and type(exc).__name__ in ("StaleDocumentError", "ApplicationShutdownError")
+        if exc is None:
+            return False
+        if type(exc).__name__ in ("StaleDocumentError", "ApplicationShutdownError"):
+            return True
+        # Definite host rejections (not outcome-unknown): -32004 the window/document no longer
+        # exists, -32008 the application is shutting down (protocol v1 section 5). The write was not
+        # applied and there is no document left to keep in sync.
+        return (getattr(exc, "code", None) in _GONE_CODES and not getattr(exc, "local", False))
 
     def sync(self, timeout: float = 10.0) -> None:
         """Drain work submitted before this call (for tests/explicit synchronization)."""

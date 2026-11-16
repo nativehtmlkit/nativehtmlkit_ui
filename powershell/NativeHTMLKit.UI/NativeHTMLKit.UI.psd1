@@ -9,7 +9,7 @@
     PowerShellVersion = '5.1'
     RequiredModules = @(@{ModuleName='NativeHTMLKit';ModuleVersion='0.1.0'})
     FunctionsToExport = @(
-        'New-NHKUi','New-NHKUiState','New-NHKUiComputed','Start-NHKUi','Stop-NHKUi','Sync-NHKUi','Get-NHKUiHtml','Get-NHKUiDiagnostics',
+        'New-NHKUi','New-NHKUiState','New-NHKUiComputed','Start-NHKUi','Stop-NHKUi','Sync-NHKUi','Get-NHKUiHtml','Get-NHKUiDiagnostics','Invoke-NHKUiBatch',
         'Add-NHKUiColumn','Add-NHKUiRow','Add-NHKUiGrid','Add-NHKUiCard',
         'Add-NHKUiHeading','Add-NHKUiText','Add-NHKUiBadge','Add-NHKUiAlert',
         'Add-NHKUiButton','Add-NHKUiInput','Add-NHKUiCheckbox','Add-NHKUiSelect',

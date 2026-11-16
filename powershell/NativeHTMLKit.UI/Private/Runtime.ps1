@@ -7,6 +7,11 @@
 # Internal callbacks are therefore module-bound literals that receive their context as an argument,
 # and the one closure handed to the SDK (document events) re-enters this module explicitly.
 
+# Depth of nested State.Set calls on this runspace and the UIs that have pending writes. A change
+# that cascades through computed states is written once, when the outermost Set returns.
+$script:NHKUiSetDepth = 0
+$script:NHKUiDirty = New-Object System.Collections.ArrayList
+
 function New-NHKUiState {
     [CmdletBinding()] param([AllowNull()]$Value)
     $s = [pscustomobject]@{ Value = $Value; Listeners = (New-Object System.Collections.ArrayList) }
@@ -15,8 +20,14 @@ function New-NHKUiState {
         param($Next)
         if ([object]::Equals($this.Value, $Next)) { return }
         $this.Value = $Next
-        foreach ($subscription in @($this.Listeners.ToArray())) {
-            if ($subscription.Active) { $null = & $subscription.Callback $Next $subscription.Context }
+        $script:NHKUiSetDepth++
+        try {
+            foreach ($subscription in @($this.Listeners.ToArray())) {
+                if ($subscription.Active) { $null = & $subscription.Callback $Next $subscription.Context }
+            }
+        } finally {
+            $script:NHKUiSetDepth--
+            if ($script:NHKUiSetDepth -eq 0 -and $script:NHKUiDirty.Count -gt 0) { Sync-NHKUiDirty }
         }
     }
     $s | Add-Member -MemberType ScriptMethod -Name Subscribe -Value {
@@ -90,7 +101,7 @@ function New-NHKUi {
         Subscriptions = (New-Object System.Collections.ArrayList)
         Window = $null; Document = $null; Application = $null
         InEvent = 0; Syncing = $false; Disposed = $false; LastError = $null; DomUncertain = $false
-        Errors = [long]0; Updates = [long]0; Operations = [long]0
+        Errors = [long]0; Updates = [long]0; Operations = [long]0; Discarded = [long]0
         OwnerRunspaceId = $null
     }
     $ui.PSObject.TypeNames.Insert(0, 'NativeHTMLKit.UI.App')
@@ -145,7 +156,38 @@ $script:NHKUiBindingChanged = {
     Assert-NHKUiOwner $ui
     $b = $ctx.Binding
     $ui.Pending[$b.Key] = $b
-    if ($null -ne $ui.Document -and $ui.InEvent -eq 0) { Sync-NHKUi -UI $ui }
+    if ($null -ne $ui.Document -and $ui.InEvent -eq 0 -and -not $script:NHKUiDirty.Contains($ui)) {
+        [void]$script:NHKUiDirty.Add($ui)  # written when the outermost State.Set returns
+    }
+}
+
+function Sync-NHKUiDirty {
+    $uis = @($script:NHKUiDirty.ToArray())
+    $script:NHKUiDirty.Clear()
+    $failure = $null
+    foreach ($ui in $uis) {
+        if ($ui.Disposed -or $ui.InEvent -gt 0) { continue }
+        try { Sync-NHKUi -UI $ui } catch { if ($null -eq $failure) { $failure = $_ } }
+    }
+    if ($null -ne $failure) { throw $failure }
+}
+
+function Invoke-NHKUiBatch {
+    <#
+    .SYNOPSIS
+    Runs a scriptblock and writes all resulting UI changes once at the end (one batched update).
+    .DESCRIPTION
+    Event callbacks are batched automatically. Use this for many State changes made outside a
+    callback (for example in a loop after a task completed). Runs on the owning runspace.
+    #>
+    [CmdletBinding()] param([Parameter(Mandatory)]$UI, [Parameter(Mandatory)][scriptblock]$ScriptBlock)
+    Assert-NHKUiOwner $UI
+    $UI.InEvent++
+    try { & $ScriptBlock }
+    finally {
+        $UI.InEvent--
+        if (-not $UI.Disposed -and $UI.InEvent -eq 0) { Sync-NHKUi -UI $UI }
+    }
 }
 
 function Add-NHKUiBindingInternal {
@@ -274,7 +316,12 @@ function Test-NHKUiStaleError {
     $e = $ErrorRecordOrException
     if ($e -is [System.Management.Automation.ErrorRecord]) { $e = $e.Exception }
     while ($null -ne $e) {
-        if ($e.GetType().FullName -eq 'NativeHTMLKit.StaleObjectException') { return $true }
+        $type = $e.GetType().FullName
+        if ($type -eq 'NativeHTMLKit.StaleObjectException') { return $true }
+        # Definite host rejections (not outcome-unknown): -32004 window/document gone, -32008 the
+        # application is shutting down (protocol v1 section 5). The write was not applied.
+        if ($type -eq 'NativeHTMLKit.RpcException' -and $null -ne $e.PSObject.Properties['Code'] -and
+            (@(-32004, -32008) -contains [int]$e.Code)) { return $true }
         $e = $e.InnerException
     }
     return $false
@@ -346,6 +393,7 @@ function Invoke-NHKUiWrites {
             # A closed window, replaced document or shut-down application ends managed updates
             # quietly: no DOM is left to keep in sync, so this is disposal, not an uncertain state.
             # (A timeout or disconnect is different: its outcome is unknown and is reported below.)
+            $UI.Discarded++
             Stop-NHKUi -UI $UI
             return
         }
@@ -366,6 +414,7 @@ function Get-NHKUiDiagnostics {
         Updates = [long]$UI.Updates
         Operations = [long]$UI.Operations
         Subscriptions = [int]$UI.Subscriptions.Count
+        DiscardedAfterClose = [long]$UI.Discarded
         Disposed = [bool]$UI.Disposed
     }
 }

@@ -178,3 +178,41 @@ def test_computed_that_writes_its_dependency_reports_a_cycle():
     with pytest.raises(RuntimeError, match='Circular'):
         s.set(100)
     c.close()
+
+
+class _RpcError(Exception):
+    def __init__(self, code, local=False):
+        super().__init__(f"{code}: host error")
+        self.code, self.local = code, local
+
+
+@pytest.mark.parametrize("code", [-32004, -32008])
+def test_host_rejection_after_shutdown_began_is_disposal(app, code):
+    s = state(0)
+    ui = UI()
+    ui.text(s)
+    ui.mount(app)
+
+    def rejected(op, **fields):
+        raise _RpcError(code)  # e.g. quit started before app.shutdown reached the SDK
+    ui.document.command = rejected
+    s.set(1)
+    time.sleep(0.05)
+    d = ui.diagnostics
+    assert d['disposed'] and not d['dom_uncertain'] and d['discarded_after_close'] == 1 and d['errors'] == ()
+
+
+@pytest.mark.parametrize("code,local", [(-32005, False), (-32009, False), (-32008, True)])
+def test_other_rpc_failures_still_mark_the_dom_uncertain(app, code, local):
+    s = state(0)
+    ui = UI()
+    ui.text(s)
+    ui.mount(app)
+
+    def failed(op, **fields):
+        raise _RpcError(code, local)
+    ui.document.command = failed
+    s.set(1)
+    with pytest.raises(RuntimeError, match='uncertain'):
+        ui.sync()
+    ui.dispose()

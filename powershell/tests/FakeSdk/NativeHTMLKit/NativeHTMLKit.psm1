@@ -3,7 +3,7 @@ if (-not ('NativeHTMLKit.StaleObjectException' -as [type])) {
     Add-Type -TypeDefinition @'
 namespace NativeHTMLKit {
     public class StaleObjectException : System.InvalidOperationException { public StaleObjectException(string m) : base(m) {} }
-    public class RpcException : System.Exception { public RpcException(string m) : base(m) {} }
+    public class RpcException : System.Exception { public int Code; public RpcException(string m, int code) : base(m) { Code = code; } public RpcException(string m) : base(m) {} }
     public class RpcTimeoutException : System.TimeoutException { public RpcTimeoutException(string m) : base(m) {} }
 }
 '@

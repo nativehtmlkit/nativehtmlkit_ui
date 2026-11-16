@@ -212,6 +212,28 @@ Test-Case 'closed window / app shutdown (stale document) ends updates quietly' {
     Assert-True ($count.Listeners.Count -eq 0) 'listener released'
     $count.Set(2)
 }
+Test-Case 'host rejections -32004/-32008 (shutdown began) dispose; other RPC errors do not' {
+    foreach ($code in @(-32004, -32008)) {
+        Reset-FakeNHK
+        $count = New-NHKUiState -Value 0
+        $ui = New-NHKUi
+        $null = Add-NHKUiText -UI $ui -Bind $count
+        $null = Start-NHKUi -UI $ui -Application (New-FakeApplication)
+        (Get-FakeNHK).Fault = New-Object NativeHTMLKit.RpcException @("$code host error", $code)
+        $count.Set(1)
+        $d = Get-NHKUiDiagnostics -UI $ui
+        Assert-True ($d.Disposed -and -not $d.DomUncertain -and $d.DiscardedAfterClose -eq 1) "code $code"
+    }
+    Reset-FakeNHK
+    $count = New-NHKUiState -Value 0
+    $ui = New-NHKUi
+    $null = Add-NHKUiText -UI $ui -Bind $count
+    $null = Start-NHKUi -UI $ui -Application (New-FakeApplication)
+    (Get-FakeNHK).Fault = New-Object NativeHTMLKit.RpcException @('busy', -32005)
+    $threw = $false; try { $count.Set(1) } catch { $threw = $true }
+    Assert-True ($threw -and (Get-NHKUiDiagnostics -UI $ui).DomUncertain) '-32005 must stay uncertain'
+    Stop-NHKUi -UI $ui
+}
 Test-Case 'a throwing handler is reported and later events still work' {
     $count = New-NHKUiState -Value 0
     $ui = New-NHKUi
@@ -276,6 +298,25 @@ Test-Case '1000 rapid external updates produce bounded, ordered writes' {
     Assert-True ($texts.Count -eq 1000 -and $texts[999] -eq '1000') "writes=$($texts.Count)"
     Write-Output ("INFO 1000 external updates in {0} ms (fake SDK)" -f $clock.ElapsedMilliseconds)
     Stop-NHKUi -UI $ui
+}
+Test-Case 'one external Set cascading through computeds is one write; Invoke-NHKUiBatch coalesces loops' {
+    $count = New-NHKUiState -Value 0
+    $a = New-NHKUiComputed -DependsOn @($count) -Data $count -Compute { param($c) "A $($c.Value)" }
+    $b = New-NHKUiComputed -DependsOn @($count) -Data $count -Compute { param($c) "B $($c.Value)" }
+    $ui = New-NHKUi
+    $null = Add-NHKUiText -UI $ui -Bind $count
+    $null = Add-NHKUiText -UI $ui -Bind $a
+    $null = Add-NHKUiText -UI $ui -Bind $b
+    $null = Start-NHKUi -UI $ui -Application (New-FakeApplication)
+    (Get-FakeNHK).Log.Clear()
+    $count.Set(1)
+    $w = @(Get-Writes)
+    Assert-True ($w.Count -eq 1 -and $w[0].ops.Count -eq 3) "writes=$($w.Count)"
+    (Get-FakeNHK).Log.Clear()
+    Invoke-NHKUiBatch -UI $ui -ScriptBlock { for ($i = 2; $i -le 500; $i++) { $count.Set($i) } }
+    $w = @(Get-Writes)
+    Assert-True ($w.Count -eq 1 -and @($w[0].ops | Where-Object { $_.text -eq 'B 500' }).Count -eq 1) "batched writes=$($w.Count)"
+    Stop-NHKUi -UI $ui; $a.Dispose(); $b.Dispose()
 }
 Test-Case 'bound button label and computed text' {
     $n = New-NHKUiState -Value 1
