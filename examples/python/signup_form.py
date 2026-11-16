@@ -14,6 +14,10 @@ EMAIL = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 PLANS = [("free", "Free"), ("team", "Team"), ("enterprise", "Enterprise")]
 
 
+# Workaround for a UI 0.1.1 stylesheet defect: a field placed directly in a column gets a
+# 200px flex basis (meant for rows) and therefore 200px of height. See docs/LIMITATIONS.md.
+FIELD_FIX = ".nhk-col > .nhk-field { flex: 0 0 auto; }"
+
 def main(app):
     name, email, password, confirm, age = (state("") for _ in range(5))
     plan = state("free")
@@ -48,7 +52,7 @@ def main(app):
         plan.set("free")
         terms.set(False)
 
-    ui = UI(title="Create account", width=620, height=700, theme="daylight", density="regular")
+    ui = UI(title="Create account", width=620, height=700, theme="daylight", density="regular", extra_css=FIELD_FIX)
     with ui.column():
         ui.heading("Create your account", level=1)
         with ui.when(lambda: not welcome.value):

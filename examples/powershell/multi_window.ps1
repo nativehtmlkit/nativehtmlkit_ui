@@ -38,7 +38,10 @@ Register-NativeHTMLKitNotification -Application $app -Method 'window.event' -Cal
     }
 }
 
-$ui = New-NHKUi -Title 'Notes' -Width 640 -Height 480
+# Workaround for a UI 0.1.1 stylesheet defect: a field placed directly in a column gets a
+# 200px flex basis (meant for rows) and therefore 200px of height. See docs/LIMITATIONS.md.
+$fieldFix = '.nhk-col > .nhk-field { flex: 0 0 auto; }'
+$ui = New-NHKUi -Title 'Notes' -Width 640 -Height 480 -ExtraCss $fieldFix
 $null = Add-NHKUiColumn -UI $ui -Content {
     $null = Add-NHKUiHeading -UI $ui -Text 'Notes' -Level 1
     $null = Add-NHKUiInput -UI $ui -Bind $s.Note -Label 'Shared note' -Placeholder 'Type here and watch the inspectors'

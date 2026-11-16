@@ -13,13 +13,17 @@ from nativehtmlkit_ui import UI, computed, state
 MAX_INSPECTORS = 3
 
 
+# Workaround for a UI 0.1.1 stylesheet defect: a field placed directly in a column gets a
+# 200px flex basis (meant for rows) and therefore 200px of height. See docs/LIMITATIONS.md.
+FIELD_FIX = ".nhk-col > .nhk-field { flex: 0 0 auto; }"
+
 def main(app):
     note = state("")
     edits = state(0)
     open_inspectors = state(0)
     words = computed(lambda: len(note.value.split()))
 
-    main_ui = UI(title="Notes", width=640, height=480)
+    main_ui = UI(title="Notes", width=640, height=480, extra_css=FIELD_FIX)
 
     def changed() -> None:
         edits.set(edits.value + 1)

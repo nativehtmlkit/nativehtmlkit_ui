@@ -41,7 +41,10 @@ $s.Hint = New-NHKUiComputed -DependsOn @($s.Complete) -Data $s -Compute {
 $s.FormVisible = New-NHKUiComputed -DependsOn @($s.Welcome) -Data $s -Compute { param($s) -not $s.Welcome.Value }
 $computeds = @($s.Errors, $s.HasErrors, $s.Complete, $s.CannotSubmit, $s.Hint, $s.FormVisible)
 
-$ui = New-NHKUi -Title 'Create account' -Width 620 -Height 700 -Theme daylight -Density regular
+# Workaround for a UI 0.1.1 stylesheet defect: a field placed directly in a column gets a
+# 200px flex basis (meant for rows) and therefore 200px of height. See docs/LIMITATIONS.md.
+$fieldFix = '.nhk-col > .nhk-field { flex: 0 0 auto; }'
+$ui = New-NHKUi -Title 'Create account' -Width 620 -Height 700 -Theme daylight -Density regular -ExtraCss $fieldFix
 $null = Add-NHKUiColumn -UI $ui -Content {
     $null = Add-NHKUiHeading -UI $ui -Text 'Create your account' -Level 1
     $null = Add-NHKUiWhen -UI $ui -Bind $s.FormVisible -Content {
