@@ -36,6 +36,8 @@ class FakeDocument:
             self.attrs[(fields['element'], fields['name'])] = fields['value']
         if op == 'remove_attribute':
             self.attrs.pop((fields['element'], fields['name']), None)
+        if op == 'replace_children_html':
+            self.fragments[fields['element']] = fields['html']
 
     def set_value(self, ident, value):
         self.calls.append(('value', ident, value))
@@ -57,10 +59,18 @@ class FakeDocument:
 
 
 class FakeWindow:
-    id = "window-1"
+    _count = 0
+
     def __init__(self, html):
+        FakeWindow._count += 1
+        self.id = f"window-{FakeWindow._count}"
         self.html = html
+        self.closed = False
+        self.close_requests = 0
         self.document = FakeDocument()
+
+    def request_close(self):
+        self.close_requests += 1
 
 
 class FakeApp:
@@ -82,6 +92,9 @@ class FakeApp:
         return lambda: self.window_callbacks.remove(callback)
 
     def shutdown(self):
+        # Like the SDK: app.shutdown retires every handle, then on_shutdown callbacks run.
+        for win in self.windows:
+            win.closed = True
         for callback in self.shutdown_callbacks:
             callback()
 

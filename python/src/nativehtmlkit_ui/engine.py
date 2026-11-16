@@ -15,6 +15,7 @@ from threading import Event, Lock, Thread, current_thread
 import logging
 import re
 import uuid
+import weakref
 from typing import Any, Callable, Iterable
 
 from .reactive import Binding, State, Observable, _MISSING
@@ -94,7 +95,8 @@ class UI:
         self.window: Any = None
         self.document: Any = None
         self.app: Any = None
-        self._last_input: dict[str, Any] = {}
+        self._updates = 0
+        self._operations = 0
 
     def _id(self) -> str:
         self._index += 1
@@ -197,9 +199,17 @@ class UI:
         el = self.element("input", css_class="nhk-input",
                           attrs={"type": kind, "placeholder": placeholder})
         if label:
-            self.element("label", css_class="nhk-label", attrs={"for": el.id}, text=label)
+            self._label_before(el, label)
         self._value_binding(el, value, "value", "input")
         return el
+
+    def _label_before(self, control: Element, text: str) -> Element:
+        """Add a native <label for> that precedes its control in document (reading) order."""
+        label = self.element("label", css_class="nhk-label", attrs={"for": control.id}, text=text)
+        siblings = self._stack[-1].children
+        siblings.remove(label)
+        siblings.insert(siblings.index(control), label)
+        return label
 
     def checkbox(self, value: State[bool], *, label: str) -> Element:
         with self.container("div", css_class="nhk-checkrow"):
@@ -212,12 +222,17 @@ class UI:
         with self.container(css_class="nhk-field"):
             el = self.element("select", css_class="nhk-select")
             if label:
-                self.element("label", attrs={"for": el.id}, css_class="nhk-label", text=label)
+                self._label_before(el, label)
             for key, text in choices:
                 child = Element("option", self._id(), {"value": str(key)})
                 child.children.append(str(text))
                 el.children.append(child)
             self._value_binding(el, value, "value", "change")
+            # A <select> has no value attribute: mark the bound option as selected instead.
+            el.attrs.pop("value", None)
+            for child in el.children:
+                if isinstance(child, Element) and child.attrs.get("value") == _string(value.value):
+                    child.attrs["selected"] = True
         return el
 
     def _value_binding(self, el: Element, value: State, kind: str, event: str) -> None:
@@ -267,9 +282,7 @@ class UI:
         el = self.element("ul", css_class="nhk-list")
         expr = lambda: tuple(formatter(item) for item in
                              (values.value if isinstance(values, Observable) else values()))
-        bind = self._bind(el, "html", expr)
-        el.children.append("__NHK_RAW_LIST__")
-        # Special marker is rendered as safe escaped string by Element; overridden below in _render.
+        self._bind(el, "html", expr)  # _render_el renders the escaped items of this binding
         return el
 
     def on(self, el: Element, kind: str, callback: Callable[[dict], None]) -> None:
@@ -325,29 +338,45 @@ class UI:
             raise RuntimeError("UI already mounted")
         if self._closed:
             raise RuntimeError("UI already disposed")
+        markup = self.html()
         self.app = app
-        self.window = app.open_html(self.html(), title=self.title, width=self.width, height=self.height)
-        self.document = self.window.document
-        # Native control values generally initialize from HTML attrs, but ensure select
-        # state and empty values are synchronized after load.
-        for el, kind, b, _ in self._bindings:
-            if kind == "value":
-                self.document.set_value(el.id, _string(b.last))
-            elif kind == "checked":
-                self.document.set_checked(el.id, bool(b.last))
-        for kind in self._actions:
-            # One subscription per event kind instead of one per managed component.
-            unsub = self.document.on(kind, lambda ev, k=kind: self.post(self._event, k, ev))
-            self._subscriptions.append(unsub)
-        # An app shutdown hook is part of the public SDK contract.
-        app.on_shutdown(self.dispose)
-        def window_event(ev: dict) -> None:
-            if ev.get("window_id") == self.window.id and ev.get("type") == "closed":
-                self.dispose()
-        self._subscriptions.append(app.on_window_event(window_event))
-        self._thread = Thread(target=self._owner, name="nativehtmlkit-ui", daemon=True)
-        self._thread.start()
-        if self._dirty:
+        self.window = app.open_html(markup, title=self.title, width=self.width, height=self.height)
+        try:
+            self.document = self.window.document
+            # Native control values initialize from HTML attrs; make the live control state explicit.
+            for el, kind, b, _ in self._bindings:
+                if kind == "value":
+                    self.document.set_value(el.id, _string(b.last))
+                elif kind == "checked":
+                    self.document.set_checked(el.id, bool(b.last))
+            for kind in self._actions:
+                # One subscription per event kind instead of one per managed component.
+                unsub = self.document.on(kind, lambda ev, k=kind: self._forward_event(k, ev))
+                self._subscriptions.append(unsub)
+            # Application.on_shutdown has no unsubscribe: hold this UI weakly so repeated
+            # mount/dispose cycles do not keep disposed UIs (and their trees) alive.
+            app.on_shutdown(_weak_call(self, "dispose"))
+            window_id = self.window.id
+            ref = weakref.ref(self)
+
+            def window_event(ev: dict) -> None:
+                ui = ref()
+                if ui is not None and ev.get("window_id") == window_id and ev.get("type") == "closed":
+                    ui.dispose()
+            self._subscriptions.append(app.on_window_event(window_event))
+            self._thread = Thread(target=self._owner, name="nativehtmlkit-ui", daemon=True)
+            self._thread.start()
+        except BaseException:
+            # Do not leave a half-mounted UI behind; the caller still owns the SDK lifecycle.
+            self.dispose()
+            try:
+                self.window.request_close()
+            except Exception:
+                LOG.debug("Could not close the window of a failed mount", exc_info=True)
+            raise
+        with self._lock:
+            pending = bool(self._dirty)
+        if pending:
             self._queue_flush()
         return self
 
@@ -375,7 +404,9 @@ class UI:
     def diagnostics(self) -> dict[str, Any]:
         with self._lock:
             return {"errors": tuple(self._errors), "event_queue_dropped": self._dropped,
-                    "pending_updates": len(self._dirty), "dom_uncertain": self._poisoned}
+                    "pending_updates": len(self._dirty), "dom_uncertain": self._poisoned,
+                    "updates": self._updates, "operations": self._operations,
+                    "subscriptions": len(self._subscriptions), "disposed": self._closed}
 
     def post(self, fn: Callable, *args: Any) -> None:
         if self._closed:
@@ -388,6 +419,20 @@ class UI:
             with self._lock:
                 self._dropped += 1
             raise RuntimeError("NativeHTMLKit UI queue full: event not delivered; inspect diagnostics")
+
+    def _forward_event(self, kind: str, event: dict) -> None:
+        """Runs on the SDK event worker: only enqueue, never block or raise into the SDK."""
+        if self._closed:
+            return
+        try:
+            self._work.put_nowait((self._event, (kind, event)))
+        except Full:
+            with self._lock:
+                self._dropped += 1
+                first = self._dropped == 1
+            # Do not reconstruct the lost event; report it once per UI and count every loss.
+            (LOG.error if first else LOG.debug)(
+                "NativeHTMLKit UI event queue full: a %s event was dropped (total %d)", kind, self._dropped)
 
     def _event(self, kind: str, event: dict) -> None:
         actions = self._actions.get(kind, {})
@@ -425,6 +470,9 @@ class UI:
             self._scheduled = False
         if not dirty or self._closed or self.document is None or self._poisoned:
             return
+        if self._document_gone():
+            self.dispose()
+            return
         operations: list[dict] = []
         special: list[tuple[str, str, Any]] = []
         for el, kind, bind, name in self._bindings:
@@ -444,7 +492,14 @@ class UI:
                                    "element": el.id, "name": name, **({"value": ""} if current else {})})
             elif kind in ("value", "checked", "html"):
                 special.append((kind, el.id, current))
-        # Do not silently recover a failed atomic batch; the DOM may be stale.
+        for kind, ident, value in special:
+            if kind == "html":
+                operations.append({"op": "replace_children_html", "element": ident,
+                                   "html": self._render_text_list(value)})
+        special = [entry for entry in special if entry[0] != "html"]
+        if not operations and not special:
+            return
+        # Do not silently recover a failed atomic batch or an outcome-unknown write; the DOM may be stale.
         try:
             for start in range(0, len(operations), 128):
                 batch = operations[start:start + 128]
@@ -453,17 +508,30 @@ class UI:
                     self.document.command(op["op"], **{k: v for k, v in op.items() if k != "op"})
                 else:
                     self.document.batch(batch)
+                self._operations += len(batch)
             for kind, ident, value in special:
                 if kind == "value":
                     self.document.set_value(ident, _string(value))
-                elif kind == "checked":
-                    self.document.set_checked(ident, bool(value))
                 else:
-                    self.document.replace_html(ident, self._render_text_list(value))
-        except Exception:
+                    self.document.set_checked(ident, bool(value))
+                self._operations += 1
+            self._updates += 1
+        except Exception as exc:
+            if self._document_gone(exc):
+                # The window closed or the app shut down: nothing left to keep in sync.
+                LOG.debug("NativeHTMLKit UI document is gone; disposing the UI")
+                self.dispose()
+                return
             with self._lock:
                 self._poisoned = True
             raise
+
+    def _document_gone(self, exc: BaseException | None = None) -> bool:
+        """True when the SDK retired this UI's window/document (closed, replaced, app.shutdown)."""
+        window = self.window
+        if window is None or getattr(window, "closed", False) or getattr(window, "document", None) is not self.document:
+            return True
+        return exc is not None and type(exc).__name__ in ("StaleDocumentError", "ApplicationShutdownError")
 
     def sync(self, timeout: float = 10.0) -> None:
         """Drain work submitted before this call (for tests/explicit synchronization)."""
@@ -507,3 +575,13 @@ class UI:
             self._thread.join(timeout=2.0)
 
     close = dispose
+
+
+def _weak_call(obj: Any, method: str) -> Callable[[], None]:
+    ref = weakref.ref(obj)
+
+    def call() -> None:
+        target = ref()
+        if target is not None:
+            getattr(target, method)()
+    return call
