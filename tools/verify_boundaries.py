@@ -46,6 +46,8 @@ b = (ROOT / "python/src/nativehtmlkit_ui/assets/ui.css").read_bytes()
 c = (ROOT / "powershell/NativeHTMLKit.UI/assets/ui.css").read_bytes()
 if a != b or a != c:
     failures.append("CSS assets differ across shared/Python/PowerShell distributions")
+if (ROOT / "python/LICENSE").read_bytes() != (ROOT / "LICENSE").read_bytes():
+    failures.append("python/LICENSE (shipped in the wheel) differs from LICENSE")
 if failures:
     print("FAIL: UI boundaries\n" + "\n".join(failures), file=sys.stderr)
     sys.exit(1)
