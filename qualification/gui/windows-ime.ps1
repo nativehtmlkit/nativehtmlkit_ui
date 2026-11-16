@@ -5,13 +5,17 @@ param([Parameter(Mandatory)][ValidateSet('on', 'off')][string]$Mode, [Parameter(
 $ErrorActionPreference = 'Stop'
 New-Item -ItemType Directory -Force $State | Out-Null
 $snap = Join-Path $State 'languages-before.json'
-function Show { ,@(foreach ($l in (Get-WinUserLanguageList)) { [pscustomobject]@{ tag = $l.LanguageTag; tips = @($l.InputMethodTips) } }) }
+function Show { @(foreach ($l in (Get-WinUserLanguageList)) { [pscustomobject]@{ tag = $l.LanguageTag; tips = @($l.InputMethodTips) } }) }
 if ($Mode -eq 'on') {
-    if (-not (Test-Path $snap)) { Show | ConvertTo-Json -Depth 4 | Set-Content -Encoding UTF8 $snap }
+    if (-not (Test-Path $snap)) { ConvertTo-Json -InputObject @(Show) -Depth 4 | Set-Content -Encoding UTF8 $snap }
     $list = Get-WinUserLanguageList
     if (-not ($list | Where-Object LanguageTag -eq 'ja')) { $list.Add((New-WinUserLanguageList 'ja-JP')[0]); Set-WinUserLanguageList $list -Force }
 } else {
-    $before = @(Get-Content $snap -Raw | ConvertFrom-Json)
+    # Windows PowerShell 5.1 may have written {"value": [...], "Count": n} for a piped array.
+    $raw = Get-Content $snap -Raw | ConvertFrom-Json
+    if ($null -ne $raw.PSObject.Properties['value'] -and $null -ne $raw.PSObject.Properties['Count']) { $raw = $raw.value }
+    $before = @($raw | ForEach-Object { $_ })   # flatten one accidental nesting level
+    if ($before.Count -gt 0 -and $before[0] -is [array]) { $before = @($before[0]) }
     $list = New-WinUserLanguageList $before[0].tag
     $list[0].InputMethodTips.Clear(); foreach ($t in $before[0].tips) { $list[0].InputMethodTips.Add($t) }
     for ($i = 1; $i -lt $before.Count; $i++) {
@@ -21,4 +25,4 @@ if ($Mode -eq 'on') {
     }
     Set-WinUserLanguageList $list -Force
 }
-Show | ConvertTo-Json -Depth 4 | Set-Content -Encoding UTF8 (Join-Path $State "languages-after-$Mode.json")
+ConvertTo-Json -InputObject @(Show) -Depth 4 | Set-Content -Encoding UTF8 (Join-Path $State "languages-after-$Mode.json")
