@@ -208,7 +208,10 @@ try {
         $next++
     }
     $extraDiag = @{}; foreach ($k in $extra.Keys) { $extraDiag[$k] = Get-NHKUiDiagnostics -UI $extra[$k].UI }
-    Write-AppLog 'shutdown' @{ diagnostics = (Get-NHKUiDiagnostics -UI $ui); extra = $extraDiag }
+    $sdk = $null
+    try { $c = (Get-NativeHTMLKitDiagnosticReport -Application $app).Connection
+          $sdk = @{ DroppedNotifications = $c.DroppedNotifications; DeferredDropped = $c.DeferredDropped; CallbackFailures = $c.CallbackFailures } } catch { $sdk = @{ error = $_.Exception.GetType().Name } }
+    Write-AppLog 'shutdown' @{ diagnostics = (Get-NHKUiDiagnostics -UI $ui); extra = $extraDiag; sdk = $sdk }
 } finally {
     Stop-NHKUi -UI $ui
     Close-NativeHTMLKit -Application $app

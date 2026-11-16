@@ -503,6 +503,11 @@ class Run:
         shutdown = [json.loads(line) for line in log.splitlines() if '"shutdown"' in line]
         diag = shutdown[-1]["diagnostics"] if shutdown else {}
         self.check("lifecycle.shutdown_hook_ran", bool(shutdown), diagnostics=diag)
+        sdk = shutdown[-1].get("sdk") if shutdown else None
+        if sdk:  # PowerShell SDK public counters (Get-NativeHTMLKitDiagnosticReport)
+            self.check("sdk.no_lost_notifications_or_callback_failures",
+                       not sdk.get("DroppedNotifications") and not sdk.get("DeferredDropped")
+                       and not sdk.get("CallbackFailures"), sdk=sdk)
         self.check("lifecycle.no_dom_uncertain_after_close_with_pending_updates",
                    bool(shutdown) and not _get(diag, "dom_uncertain", "DomUncertain"),
                    diagnostics=diag)
