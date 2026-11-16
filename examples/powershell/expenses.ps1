@@ -3,7 +3,7 @@
 # Teaches: states and computed values with explicit -DependsOn, two-way input/select binding,
 # a button disabled by a computed value, a filtered text list, an empty-state region with
 # Add-NHKUiWhen, and culture-independent decimal parsing. This is the finished app of
-# docs/tutorials/powershell-expense-tracker.md.
+# docs/powershell/tutorials/expense-tracker.md.
 #
 # Run:  pwsh -File ./expenses.ps1                      (PowerShell 7.2+, Linux or Windows)
 #       powershell.exe -NoProfile -File .\expenses.ps1  (Windows PowerShell 5.1)

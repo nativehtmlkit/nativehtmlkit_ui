@@ -1,11 +1,18 @@
 #!/usr/bin/env python3
-"""Run every example (examples/, docs/tutorials/code/) against the real NativeHTMLKit host, headless.
+"""Run every catalogued example and tutorial step in both languages against the real host, headless.
 
 Test tooling (stdlib only). Each example is started UNCHANGED through its normal entry point
 (``python EXAMPLE.py`` / ``pwsh -File EXAMPLE.ps1``, wrapped by py_probe.py / ps_probe.ps1) with
 NATIVEHTMLKIT_TEST_MODE=1, so the real native host runs the whole protocol without a window.
 The probe executes the scenario from scenarios.json (simulated events at the UI library's SDK
 callback entry point plus DOM read-back through the public SDK), then requests an orderly quit.
+
+The plan comes from examples/catalog.toml: every [[example]] has a Python and a PowerShell file,
+every [[tutorial]] lists its steps per language. Coverage is enforced: a catalogue entry without
+both files, a tutorial without the same number of steps in both languages, a file without a
+scenario, and any .py/.ps1 under examples/ that the catalogue does not list each count as FAIL.
+A scenario may give "args" (passed to the example after its path, relative paths resolve in a
+fresh temporary working directory).
 
 Per example the driver checks: a scenario exists; the app reached ready; every scenario step
 passed; UI diagnostics show no errors, no dropped events and no uncertain DOM; (PowerShell) the
@@ -23,6 +30,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import tomllib
 import os
 import subprocess
 import sys
@@ -33,6 +41,8 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[1]
+EXAMPLES = REPO / "examples"
+CATALOG = EXAMPLES / "catalog.toml"
 WINDOWS = os.name == "nt"
 BAD_STDERR = ("Traceback", "Exception", "callback/update failed", "event handler failed")
 
@@ -60,7 +70,7 @@ def _marker_processes(marker: str) -> list[str]:
     return found
 
 
-def run_one(lang: str, example: Path, steps: list, args, out: Path) -> dict:
+def run_one(lang: str, example: Path, steps: list, example_args: list, args, out: Path) -> dict:
     marker = uuid.uuid4().hex[:16]
     work = Path(tempfile.mkdtemp(prefix="nhkui-ex-"))
     spec, result_file = work / "spec.json", work / "result.json"
@@ -69,12 +79,12 @@ def run_one(lang: str, example: Path, steps: list, args, out: Path) -> dict:
     env.update(NATIVEHTMLKIT_TEST_MODE="1", NHKUI_EXAMPLE_SPEC=str(spec), NHKUI_EXAMPLE_OUT=str(result_file),
                NHKUI_EXAMPLE_MARKER=marker, PYTHONUNBUFFERED="1")
     if lang == "py":
-        argv = [args.python, str(HERE / "py_probe.py"), str(example), marker]
+        argv = [args.python, str(HERE / "py_probe.py"), marker, str(example), *example_args]
     else:
         if args.ps_module_path:
             env["PSModulePath"] = args.ps_module_path + os.pathsep + env.get("PSModulePath", "")
         argv = [args.pwsh, "-NoProfile", "-NonInteractive"] + (["-ExecutionPolicy", "Bypass"] if WINDOWS else []) \
-            + ["-File", str(HERE / "ps_probe.ps1"), str(example), marker]
+            + ["-File", str(HERE / "ps_probe.ps1"), str(example), marker, *example_args]
     started = time.monotonic()
     proc = subprocess.Popen(argv, cwd=str(work), env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                             stdin=subprocess.DEVNULL, **({} if WINDOWS else {"start_new_session": True}))
@@ -121,8 +131,64 @@ def run_one(lang: str, example: Path, steps: list, args, out: Path) -> dict:
     checks["stderr_clean"] = (not bad, bad[:5])
     checks["no_orphan_processes"] = (not leftovers, leftovers[:5])
     status = "PASS" if all(ok for ok, _ in checks.values()) else "FAIL"
-    return {"example": f"{lang}/{example.name}", "status": status, "seconds": seconds, "steps": len(steps_done),
+    return {"example": f"{lang}/{example.relative_to(EXAMPLES).as_posix()}", "status": status, "seconds": seconds, "steps": len(steps_done),
             "checks": {k: {"ok": ok, "detail": detail} for k, (ok, detail) in checks.items()}}
+
+
+def _coverage_failure(name: str, detail: str) -> dict:
+    return {"example": name, "status": "FAIL", "checks": {"coverage": {"ok": False, "detail": detail}}}
+
+
+def build_plan(lang: str) -> tuple[list[tuple[str, Path]], list[dict]]:
+    """Return the (language, file) runs from the catalogue and FAIL entries for coverage gaps."""
+    catalog = tomllib.loads(CATALOG.read_text(encoding="utf-8"))
+    langs = {"py": ("py",), "ps": ("ps",), "all": ("py", "ps")}[lang]
+    keys = {"py": "python", "ps": "powershell"}
+    plan: list[tuple[str, Path]] = []
+    gaps: list[dict] = []
+    listed: set[Path] = set()
+    ids: set[str] = set()
+    for item in catalog.get("example", []):
+        ident = item.get("id", "?")
+        if ident in ids:
+            gaps.append(_coverage_failure(f"example:{ident}", "duplicate catalogue id"))
+        ids.add(ident)
+        for key in keys.values():
+            if not item.get(key):
+                gaps.append(_coverage_failure(f"example:{ident}", f"no {key} file in catalog.toml"))
+        for key in keys.values():
+            if item.get(key):
+                listed.add((EXAMPLES / item[key]).resolve())
+        for code in langs:
+            if item.get(keys[code]):
+                path = EXAMPLES / item[keys[code]]
+                if path.is_file():
+                    plan.append((code, path))
+                else:
+                    gaps.append(_coverage_failure(f"{code}/{item[keys[code]]}", "catalogued file does not exist"))
+    for tutorial in catalog.get("tutorial", []):
+        ident = tutorial.get("id", "?")
+        if len(tutorial.get("python", [])) != len(tutorial.get("powershell", [])) or not tutorial.get("python"):
+            gaps.append(_coverage_failure(f"tutorial:{ident}", "steps missing in one language"))
+        if tutorial.get("final") not in ids:
+            gaps.append(_coverage_failure(f"tutorial:{ident}", f"final example {tutorial.get('final')!r} not catalogued"))
+        for key in keys.values():
+            listed.update((EXAMPLES / rel).resolve() for rel in tutorial.get(key, []))
+        for code in langs:
+            for rel in tutorial.get(keys[code], []):
+                path = EXAMPLES / rel
+                if path.is_file():
+                    plan.append((code, path))
+                else:
+                    gaps.append(_coverage_failure(f"{code}/{rel}", "tutorial step file does not exist"))
+    stale = subprocess.run([sys.executable, str(HERE / "example_pages.py"), "--check"], capture_output=True, text=True)
+    if stale.returncode:
+        gaps.append(_coverage_failure("docs/*/examples.md", stale.stdout.strip() or stale.stderr.strip()))
+    for suffix in (".py", ".ps1"):
+        for path in sorted(EXAMPLES.rglob("*" + suffix)):
+            if "__pycache__" not in path.parts and path.resolve() not in listed:
+                gaps.append(_coverage_failure(path.relative_to(EXAMPLES).as_posix(), "not listed in catalog.toml"))
+    return plan, gaps
 
 
 def main() -> int:
@@ -139,25 +205,22 @@ def main() -> int:
     out.mkdir(parents=True, exist_ok=True)
     scenarios = json.loads((HERE / "scenarios.json").read_text(encoding="utf-8"))
     only = set(filter(None, args.only.split(",")))
-    plan = []
-    # The examples and the runnable tutorial steps (docs/tutorials/code) are verified alike.
-    if args.lang in ("py", "all"):
-        for folder in ("examples/python", "docs/tutorials/code/python"):
-            plan += [("py", e) for e in sorted((REPO / folder).glob("*.py"))]
-    if args.lang in ("ps", "all"):
-        for folder in ("examples/powershell", "docs/tutorials/code/powershell"):
-            plan += [("ps", e) for e in sorted((REPO / folder).glob("*.ps1"))]
-    report = []
+    plan, report = build_plan(args.lang)
+    for r in report:
+        print(f"FAIL {r['example']} failed: {list(r['checks'])} {json.dumps(r['checks'])[:600]}", flush=True)
     for lang, example in plan:
         if only and example.stem not in only:
             continue
         entry = scenarios.get(example.stem)
         if entry is None:
-            report.append({"example": f"{lang}/{example.name}", "status": "FAIL",
+            report.append({"example": f"{lang}/{example.relative_to(EXAMPLES).as_posix()}", "status": "FAIL",
                            "checks": {"scenario_defined": {"ok": False, "detail": "add it to scenarios.json"}}})
+        elif not entry.get(lang, entry.get("steps")):
+            report.append({"example": f"{lang}/{example.relative_to(EXAMPLES).as_posix()}", "status": "FAIL",
+                           "checks": {"scenario_defined": {"ok": False, "detail": f"no {lang} steps in scenarios.json"}}})
         else:
             steps = entry.get(lang, entry.get("steps", []))
-            report.append(run_one(lang, example, steps, args, out))
+            report.append(run_one(lang, example, steps, entry.get("args", []), args, out))
         r = report[-1]
         failed = [k for k, v in r["checks"].items() if not v["ok"]]
         print(f"{r['status']} {r['example']} ({r.get('seconds', 0)} s, {r.get('steps', 0)} steps)"

@@ -1,0 +1,216 @@
+# NativeHTMLKit UI example catalogue (machine-readable; the parity key is `id`).
+#
+# Every example exists in Python and PowerShell with the same window title, features and UI text.
+# Paths are relative to examples/. qualification/examples/run_examples.py runs every entry and
+# every tutorial step in both languages against the real host and fails when an entry, a file,
+# a scenario or an uncatalogued example script is missing.
+
+[[example]]
+id = "hello"
+title = "Hello UI"
+summary = "The first window: a greeting that follows a text field, and a Reset button."
+teaches = ["state and computed values", "two-way input", "button handler", "application lifecycle"]
+python = "python/hello.py"
+powershell = "powershell/hello.ps1"
+run_python = "python hello.py"
+run_powershell = "pwsh -File ./hello.ps1"
+guide = "reactive-state"
+language_specific = false
+
+[[example]]
+id = "counter"
+title = "Counter gallery"
+summary = "The smallest tour of state, computed text, buttons, an input, a checkbox and a list."
+teaches = ["state and computed values", "bound text", "two-way input and checkbox", "when regions", "grid"]
+python = "python/counter.py"
+powershell = "powershell/counter.ps1"
+run_python = "python counter.py"
+run_powershell = "pwsh -File ./counter.ps1"
+guide = "reactive-state"
+language_specific = false
+
+[[example]]
+id = "expenses"
+title = "Expense tracker"
+summary = "Add expenses, remove the last one, filter by category and see totals (expense-tracker tutorial app)."
+teaches = ["two-way inputs and select", "validation", "computed totals and filter", "empty state"]
+python = "python/expenses.py"
+powershell = "powershell/expenses.ps1"
+run_python = "python expenses.py"
+run_powershell = "pwsh -File ./expenses.ps1"
+guide = "forms-and-inputs"
+tutorial = "expense-tracker"
+language_specific = false
+
+[[example]]
+id = "todo"
+title = "Task list"
+summary = "Tasks with Done/Remove buttons per row and an All/Open/Done filter."
+teaches = ["slot pool for rows with buttons", "bound button labels", "computed counts"]
+python = "python/todo.py"
+powershell = "powershell/todo.ps1"
+run_python = "python todo.py"
+run_powershell = "pwsh -File ./todo.ps1"
+guide = "lists-and-conditional-content"
+language_specific = false
+
+[[example]]
+id = "signup-form"
+title = "Sign-up form"
+summary = "Live validation, a guarded submit button, a confirmation screen and reset."
+teaches = ["validation as computed state", "guarded submit", "form/confirmation swap", "reset by setting states"]
+python = "python/signup_form.py"
+powershell = "powershell/signup_form.ps1"
+run_python = "python signup_form.py"
+run_powershell = "pwsh -File ./signup_form.ps1"
+guide = "forms-and-inputs"
+language_specific = false
+
+[[example]]
+id = "settings"
+title = "Settings panel"
+summary = "Save, Revert and Restore defaults with an unsaved-changes indicator."
+teaches = ["dirty tracking with a computed snapshot", "writing state back into controls", "nested when regions"]
+python = "python/settings.py"
+powershell = "powershell/settings.ps1"
+run_python = "python settings.py"
+run_powershell = "pwsh -File ./settings.ps1"
+guide = "reactive-state"
+language_specific = false
+
+[[example]]
+id = "settings-editor"
+title = "Settings editor"
+summary = "Edit, validate and save a JSON settings file; the saved theme applies on the next start (settings-editor tutorial app)."
+teaches = ["initial state from a file", "computed validation message", "atomic JSON save", "revert from disk"]
+python = "python/settings_editor.py"
+powershell = "powershell/settings_editor.ps1"
+run_python = "python settings_editor.py [PATH]"
+run_powershell = "pwsh -File ./settings_editor.ps1 [PATH]"
+guide = "forms-and-inputs"
+tutorial = "settings-editor"
+language_specific = false
+
+[[example]]
+id = "log-viewer"
+title = "Live log viewer"
+summary = "A background producer streams log lines; filter by level and text, pause and clear."
+teaches = ["streaming background producer", "bounded history", "filtered text list", "pause"]
+python = "python/log_viewer.py"
+powershell = "powershell/log_viewer.ps1"
+run_python = "python log_viewer.py"
+run_powershell = "pwsh -File ./log_viewer.ps1"
+guide = "background-work"
+language_specific = false
+
+[[example]]
+id = "background"
+title = "Background calculation"
+summary = "Run a slow calculation off the UI thread and report the result; cancel it."
+teaches = ["Python executor and ui.post()", "PowerShell Start-NativeHTMLKitTask", "busy flag", "cancel"]
+python = "python/background.py"
+powershell = "powershell/background.ps1"
+run_python = "python background.py"
+run_powershell = "pwsh -File ./background.ps1"
+guide = "background-work"
+language_specific = false
+
+[[example]]
+id = "word-counter"
+title = "Word counter"
+summary = "Count words in a text file in the background with progress, Cancel and a top-ten list."
+teaches = ["background work with progress", "cancellation", "merging partial results", "throttled updates"]
+python = "python/word_counter.py"
+powershell = "powershell/word_counter.ps1"
+run_python = "python word_counter.py [FILE]"
+run_powershell = "pwsh -File ./word_counter.ps1 [FILE]"
+guide = "background-work"
+language_specific = false
+
+[[example]]
+id = "clipboard-tool"
+title = "Clipboard text tool"
+summary = "Transform text and copy or paste it with the SDK clipboard, handling unavailability."
+teaches = ["SDK clipboard calls from UI handlers", "error handling", "computed preview"]
+python = "python/clipboard_tool.py"
+powershell = "powershell/clipboard_tool.ps1"
+run_python = "python clipboard_tool.py"
+run_powershell = "pwsh -File ./clipboard_tool.ps1"
+guide = "mixing-ui-and-sdk-calls"
+language_specific = false
+
+[[example]]
+id = "file-picker"
+title = "File inspector"
+summary = "Pick files with the native open dialog and list their sizes and a total."
+teaches = ["SDK file dialog from the UI", "cancel and error paths", "busy flag"]
+python = "python/file_picker.py"
+powershell = "powershell/file_picker.ps1"
+run_python = "python file_picker.py"
+run_powershell = "pwsh -File ./file_picker.ps1"
+guide = "mixing-ui-and-sdk-calls"
+language_specific = false
+
+[[example]]
+id = "multi-window"
+title = "Notes with inspector windows"
+summary = "Several windows bound to the same state; open, track and close inspector windows."
+teaches = ["several UIs in one application", "shared state", "window events", "closing windows from code"]
+python = "python/multi_window.py"
+powershell = "powershell/multi_window.ps1"
+run_python = "python multi_window.py"
+run_powershell = "pwsh -File ./multi_window.ps1"
+guide = "multiple-windows"
+language_specific = false
+
+[[example]]
+id = "dashboard"
+title = "System dashboard"
+summary = "A responsive card grid with a live clock and disk usage, themed with extra CSS."
+teaches = ["responsive grid", "themes and density", "extra CSS", "one-second timer"]
+python = "python/dashboard.py"
+powershell = "powershell/dashboard.ps1"
+run_python = "python dashboard.py [cobalt|graphite|daylight]"
+run_powershell = "pwsh -File ./dashboard.ps1 [cobalt|graphite|daylight]"
+guide = "layouts"
+language_specific = false
+
+[[example]]
+id = "theme-preview"
+title = "Theme preview"
+summary = "Every component in a chosen theme and density, with an optional custom accent colour."
+teaches = ["themes and densities", "overriding design tokens with extra CSS", "several instances side by side"]
+python = "python/theme_preview.py"
+powershell = "powershell/theme_preview.ps1"
+run_python = "python theme_preview.py [cobalt|graphite|daylight] [compact|regular|comfortable] [#RRGGBB]"
+run_powershell = "pwsh -File ./theme_preview.ps1 [cobalt|graphite|daylight] [compact|regular|comfortable] [#RRGGBB]"
+guide = "theming-and-custom-css"
+language_specific = false
+
+[[example]]
+id = "message-preview"
+title = "Message composer"
+summary = "Untrusted typed text is always escaped; only fixed help markup is inserted as HTML."
+teaches = ["escaping untrusted text", "trusted static markup", "length limit"]
+python = "python/message_preview.py"
+powershell = "powershell/message_preview.ps1"
+run_python = "python message_preview.py"
+run_powershell = "pwsh -File ./message_preview.ps1"
+guide = "trusted-and-untrusted-content"
+language_specific = false
+
+# Tutorials: every step is a complete program; the last step is the catalogue example `final`.
+
+[[tutorial]]
+id = "expense-tracker"
+title = "Build an expense tracker"
+python = ["tutorials/python/expenses_step1.py", "tutorials/python/expenses_step2.py", "tutorials/python/expenses_step3.py"]
+powershell = ["tutorials/powershell/expenses_step1.ps1", "tutorials/powershell/expenses_step2.ps1", "tutorials/powershell/expenses_step3.ps1"]
+final = "expenses"
+
+[[tutorial]]
+id = "settings-editor"
+title = "Build a settings editor"
+python = ["tutorials/python/settings_editor_step1.py"]
+powershell = ["tutorials/powershell/settings_editor_step1.ps1"]
+final = "settings-editor"

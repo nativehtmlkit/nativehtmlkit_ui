@@ -1,5 +1,6 @@
 # Example probe (PowerShell). Test tooling for run_examples.py, not part of the module.
-# usage: pwsh -NoProfile -File ps_probe.ps1 EXAMPLE.ps1 MARKER   (or powershell.exe 5.1)
+# usage: pwsh -NoProfile -File ps_probe.ps1 EXAMPLE.ps1 MARKER [ARGS...]   (or powershell.exe 5.1)
+# ARGS are passed to the example as positional arguments.
 #
 # Runs EXAMPLE.ps1 unchanged. Global aliases (which win over module functions in command lookup)
 # route three calls through this probe:
@@ -9,10 +10,11 @@
 #                              a few steps per call, then requests an orderly quit
 # Events are injected at the UI module's SDK-callback entry point; this proves application logic
 # and DOM writes against the real host, not native input. Windows PowerShell 5.1 compatible.
-param([Parameter(Mandatory)][string]$Example, [string]$Marker = '')
+param([Parameter(Mandatory)][string]$Example, [string]$Marker = '',
+      [Parameter(ValueFromRemainingArguments = $true)][string[]]$ExampleArgs = @())
 $ErrorActionPreference = 'Stop'
 $global:NHKProbe = [pscustomobject]@{
-    Example = [IO.Path]::GetFullPath($Example); Self = $PSCommandPath; Marker = $Marker
+    Example = [IO.Path]::GetFullPath($Example); Self = $PSCommandPath; Marker = $Marker; Args = @($ExampleArgs)
     Uis = (New-Object System.Collections.ArrayList); App = $null; Steps = @(); Index = 0
     Results = (New-Object System.Collections.ArrayList); Started = $null; StepStarted = $null
     Finished = $false; Ready = $false; Failed = $false; QuitRequested = $false; Error = $null; Sdk = $null
@@ -189,7 +191,7 @@ function global:Start-NHKProbeScript {
         [string]$ScriptPath, [string]$Diagnostics)
     $p = @{}; foreach ($k in $PSBoundParameters.Keys) { $p[$k] = $PSBoundParameters[$k] }
     $p.ScriptPath = $global:NHKProbe.Self
-    $p.ArgumentList = @($global:NHKProbe.Example, $global:NHKProbe.Marker)
+    $p.ArgumentList = @($global:NHKProbe.Example, $global:NHKProbe.Marker) + @($global:NHKProbe.Args)
     $app = NativeHTMLKit\Start-NativeHTMLKitScript @p
     $global:NHKProbe.App = $app
     return $app
@@ -223,7 +225,8 @@ Set-Alias -Name Start-NHKUi -Value Start-NHKProbeUi -Scope Global
 Set-Alias -Name Wait-NativeHTMLKit -Value Wait-NHKProbe -Scope Global
 Import-Module NativeHTMLKit.UI -ErrorAction Stop
 try {
-    & $global:NHKProbe.Example
+    $exampleArgs = @($global:NHKProbe.Args)
+    & $global:NHKProbe.Example @exampleArgs
 } catch {
     $global:NHKProbe.Error = $_.Exception.GetType().FullName + ': ' + $_.Exception.Message
     if ($null -ne $global:NHKProbe.App) { Write-NHKProbeResult 'error' }

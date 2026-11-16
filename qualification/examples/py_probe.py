@@ -1,9 +1,10 @@
 """Example probe (Python). Test tooling for run_examples.py, not part of the package.
 
-usage: python py_probe.py EXAMPLE.py MARKER
+usage: python py_probe.py MARKER EXAMPLE.py [ARGS...]
 
-Runs EXAMPLE.py unchanged as ``__main__`` (so its own ``Application.start()`` launcher/backend
-logic runs exactly as with ``python EXAMPLE.py``). In the backend process it records every
+Runs EXAMPLE.py unchanged as ``__main__`` with ``sys.argv == [EXAMPLE.py, *ARGS]`` (so its own
+``Application.start()`` launcher/backend logic runs exactly as with ``python EXAMPLE.py ARGS``;
+the marker stays on the real command line, where the SDK re-runs it and the harness finds it). In the backend process it records every
 ``UI.mount``, and once the application is ready it executes the scenario steps from the JSON
 file named by NHKUI_EXAMPLE_SPEC, writes results to NHKUI_EXAMPLE_OUT and requests an orderly quit.
 
@@ -208,8 +209,9 @@ def _install() -> None:
 
 
 if __name__ == "__main__":
-    target = os.path.abspath(sys.argv[1])
+    target = os.path.abspath(sys.argv[2])
     _install()
-    # argv[0] becomes the example; the marker stays so the SDK re-runs exactly "py_probe.py EXAMPLE MARKER".
-    sys.argv = [target, *sys.argv[2:]]
+    # The example sees only its own arguments. The SDK rebuilds the backend command line from
+    # sys.orig_argv, so the backend runs exactly "py_probe.py MARKER EXAMPLE ARGS..." again.
+    sys.argv = [target, *sys.argv[3:]]
     runpy.run_path(target, run_name="__main__")

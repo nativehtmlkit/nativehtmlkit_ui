@@ -34,7 +34,8 @@ $null = Add-NHKUiColumn -UI $ui -Content {
                 $s.Busy.Set($false)
             } -OnFailed {
                 param($failure)
-                $s.Status.Set('Failed: ' + $failure.GetType().Name)
+                if ($failure -is [OperationCanceledException]) { $s.Status.Set('Cancelled') }
+                else { $s.Status.Set('Failed: ' + $failure.GetType().Name) }
                 $s.Busy.Set($false)
             }
         }

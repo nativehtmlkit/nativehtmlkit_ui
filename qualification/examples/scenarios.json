@@ -1,6 +1,42 @@
 {
+ "hello": {
+  "steps": [
+   {
+    "op": "expect_text",
+    "contains": [
+     "Hello, world!"
+    ]
+   },
+   {
+    "op": "type",
+    "label": "Your name",
+    "value": "Ada"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Hello, Ada!"
+    ]
+   },
+   {
+    "op": "click",
+    "label": "Reset"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Hello, world!"
+    ]
+   },
+   {
+    "op": "expect_value",
+    "label": "Your name",
+    "value": "world"
+   }
+  ]
+ },
  "counter": {
-  "py": [
+  "steps": [
    {
     "op": "expect_text",
     "contains": [
@@ -57,57 +93,15 @@
      "Ada: 0 clicks"
     ]
    }
-  ],
-  "ps": [
-   {
-    "op": "expect_text",
-    "contains": [
-     "NativeHTMLKit: 0 clicks",
-     "Ready"
-    ]
-   },
-   {
-    "op": "click",
-    "label": "Increment"
-   },
-   {
-    "op": "click",
-    "label": "Increment"
-   },
-   {
-    "op": "expect_text",
-    "contains": [
-     "NativeHTMLKit: 2 clicks",
-     "Count became 2"
-    ]
-   },
-   {
-    "op": "type",
-    "label": "Your name",
-    "value": "Ada"
-   },
-   {
-    "op": "expect_text",
-    "contains": [
-     "Ada: 2 clicks"
-    ]
-   },
-   {
-    "op": "check",
-    "label": "Show events",
-    "value": false
-   },
-   {
-    "op": "expect_text",
-    "contains": [],
-    "absent": [
-     "Count became 2"
-    ]
-   }
   ]
  },
  "background": {
   "py": [
+   {
+    "op": "expect_disabled",
+    "label": "Cancel",
+    "value": true
+   },
    {
     "op": "expect_text",
     "contains": [
@@ -165,7 +159,7 @@
    {
     "op": "wait_text",
     "contains": [
-     "Failed: OperationCanceledException"
+     "Cancelled"
     ],
     "timeout": 30
    },
@@ -1260,6 +1254,327 @@
     "absent": [
      "Amount must"
     ]
+   }
+  ]
+ },
+ "settings_editor": {
+  "args": [
+   "settings.json"
+  ],
+  "steps": [
+   {
+    "op": "expect_text",
+    "contains": [
+     "Settings",
+     "All changes saved",
+     "Enter a display name.",
+     "Editing "
+    ]
+   },
+   {
+    "op": "expect_value",
+    "label": "Refresh interval (seconds)",
+    "value": "60"
+   },
+   {
+    "op": "type",
+    "label": "Display name",
+    "value": "Grace"
+   },
+   {
+    "op": "type",
+    "label": "E-mail",
+    "value": "grace@example"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Unsaved changes",
+     "The e-mail address looks invalid."
+    ]
+   },
+   {
+    "op": "click",
+    "label": "Save"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Fix the problem above before saving."
+    ]
+   },
+   {
+    "op": "type",
+    "label": "E-mail",
+    "value": "grace@example.org"
+   },
+   {
+    "op": "type",
+    "label": "Refresh interval (seconds)",
+    "value": "2"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Refresh interval must be a whole number from 5 to 3600."
+    ]
+   },
+   {
+    "op": "type",
+    "label": "Refresh interval (seconds)",
+    "value": "30"
+   },
+   {
+    "op": "choose",
+    "label": "Theme (applies on next start)",
+    "value": "daylight"
+   },
+   {
+    "op": "check",
+    "label": "Send me e-mail notifications",
+    "value": true
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Unsaved changes"
+    ],
+    "absent": [
+     "Enter a display name.",
+     "looks invalid",
+     "Refresh interval must"
+    ]
+   },
+   {
+    "op": "click",
+    "label": "Save"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "All changes saved",
+     "Saved "
+    ]
+   },
+   {
+    "op": "type",
+    "label": "Display name",
+    "value": "Someone else"
+   },
+   {
+    "op": "check",
+    "label": "Send me e-mail notifications",
+    "value": false
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Unsaved changes"
+    ]
+   },
+   {
+    "op": "click",
+    "label": "Revert"
+   },
+   {
+    "op": "expect_value",
+    "label": "Display name",
+    "value": "Grace"
+   },
+   {
+    "op": "expect_value",
+    "label": "Send me e-mail notifications",
+    "checked": true
+   },
+   {
+    "op": "expect_value",
+    "label": "Theme (applies on next start)",
+    "value": "daylight"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "All changes saved",
+     "Reverted to the saved file"
+    ]
+   }
+  ]
+ },
+ "settings_editor_step1": {
+  "steps": [
+   {
+    "op": "expect_text",
+    "contains": [
+     "Ada <ada@example.org>, cobalt theme, with e-mail notifications"
+    ]
+   },
+   {
+    "op": "type",
+    "label": "Display name",
+    "value": "Grace"
+   },
+   {
+    "op": "choose",
+    "label": "Theme",
+    "value": "graphite"
+   },
+   {
+    "op": "check",
+    "label": "Send me e-mail notifications",
+    "value": false
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Grace <ada@example.org>, graphite theme, without notifications"
+    ]
+   }
+  ]
+ },
+ "theme_preview": {
+  "args": [
+   "daylight",
+   "comfortable",
+   "#0f7b6c"
+  ],
+  "steps": [
+   {
+    "op": "expect_text",
+    "contains": [
+     "Daylight theme, comfortable density",
+     "Hello Ada",
+     "accent #0f7b6c",
+     "Alerts use role=status"
+    ]
+   },
+   {
+    "op": "type",
+    "label": "Name",
+    "value": "<Grace & co>"
+   },
+   {
+    "op": "expect_text",
+    "contains": [
+     "Hello <Grace & co>"
+    ]
+   },
+   {
+    "op": "expect_disabled",
+    "label": "Disabled",
+    "value": true
+   },
+   {
+    "op": "expect_disabled",
+    "label": "Primary",
+    "value": false
+   },
+   {
+    "op": "choose",
+    "label": "Size",
+    "value": "l"
+   },
+   {
+    "op": "expect_value",
+    "label": "Size",
+    "value": "l"
+   }
+  ]
+ },
+ "word_counter": {
+  "py": [
+   {
+    "op": "expect_text",
+    "contains": [
+     "Press Count to start.",
+     "Source: generated sample text"
+    ]
+   },
+   {
+    "op": "expect_disabled",
+    "label": "Cancel",
+    "value": true
+   },
+   {
+    "op": "click",
+    "label": "Count"
+   },
+   {
+    "op": "wait_text",
+    "contains": [
+     "Done: 180,000 words, 13 different, 20,000 lines.",
+     "the: 25,714",
+     "dog: 12,860",
+     "render: 12,856"
+    ],
+    "timeout": 60
+   },
+   {
+    "op": "expect_disabled",
+    "label": "Count",
+    "value": false
+   },
+   {
+    "op": "expect_disabled",
+    "label": "Cancel",
+    "value": true
+   }
+  ],
+  "ps": [
+   {
+    "op": "expect_text",
+    "contains": [
+     "Press Count to start.",
+     "Source: generated sample text"
+    ]
+   },
+   {
+    "op": "expect_disabled",
+    "label": "Cancel",
+    "value": true
+   },
+   {
+    "op": "click",
+    "label": "Count"
+   },
+   {
+    "op": "wait_text",
+    "contains": [
+     "Done: 180,000 words, 13 different, 20,000 lines.",
+     "the: 25,714",
+     "dog: 12,860",
+     "render: 12,856"
+    ],
+    "timeout": 60
+   },
+   {
+    "op": "expect_disabled",
+    "label": "Count",
+    "value": false
+   },
+   {
+    "op": "expect_disabled",
+    "label": "Cancel",
+    "value": true
+   },
+   {
+    "op": "click",
+    "label": "Count"
+   },
+   {
+    "op": "click",
+    "label": "Cancel"
+   },
+   {
+    "op": "wait_text",
+    "contains": [
+     "Cancelled."
+    ],
+    "timeout": 30
+   },
+   {
+    "op": "expect_disabled",
+    "label": "Count",
+    "value": false
    }
   ]
  }
