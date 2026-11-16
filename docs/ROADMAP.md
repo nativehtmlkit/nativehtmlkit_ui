@@ -9,7 +9,7 @@ This repository intentionally does **not** contain a speculative widget/extensio
 - Offline build and packaging scripts.
 - Python fake-SDK unit/integration tests and explicit local-agent handoff.
 
-**Next requirement:** verify and correct against current real SDK versions, run PowerShell on both editions, and complete real GUI qualification. No new feature work takes priority over correctness of the existing primitives.
+Status 2026-11-16: verified and corrected against the published SDK 0.1.0, PowerShell on both editions and real GUI qualification completed (`docs/VERIFICATION.md`). Next: re-run the harness against the SDK 0.1.1 / Core 1.0.3 releases once published, and add a screen-reader pass.
 
 ## After qualification
 

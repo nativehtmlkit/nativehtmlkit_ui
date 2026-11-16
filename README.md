@@ -2,7 +2,7 @@
 
 A small, responsive and reactive native desktop UI toolkit for **Python** and **PowerShell**, built on the public NativeHTMLKit SDKs. Separate repository, one shared visual system, two native-language implementations.
 
-**Status: implementation candidate 0.1.0.** Python fake-SDK tests pass in the provided development environment. PowerShell and real interactive native GUI gates require local qualification; see `docs/QUALIFICATION.md` and `docs/VERIFICATION.md`. This is source ready for local-agent validation, **not a qualified release**.
+**Status: 0.1.0 release candidate, locally qualified (not published).** Fake-SDK unit tests, real-host integration and real-input GUI suites pass with the published SDK 0.1.0 prereleases (Core 1.0.2) on KDE Plasma Wayland (Python, PowerShell 7) and interactive Windows Server 2022 (Python, PowerShell 7, Windows PowerShell 5.1) at 100/125/150% scaling, including IME composition. See [`docs/VERIFICATION.md`](docs/VERIFICATION.md) for the evidence summary and remaining limits.
 
 ## Architecture
 
