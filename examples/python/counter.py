@@ -1,4 +1,11 @@
-"""Run: python -m nativehtmlkit run counter:main --name Counter (with PYTHONPATH set here)."""
+"""Counter gallery: the smallest tour of state, computed text, buttons, input, checkbox and list.
+
+Teaches: state() and computed(), text bound to a lambda, a two-way input and checkbox, a reactive
+text list shown or hidden with ui.when(), and a responsive card grid.
+
+Run:  python counter.py      (pip install nativehtmlkit_ui)
+  or: python -m nativehtmlkit run counter:main --name Counter   (from this directory)
+"""
 from nativehtmlkit_ui import UI, state, computed
 
 

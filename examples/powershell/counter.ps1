@@ -1,5 +1,12 @@
-# Run in pwsh 7.2+ on KDE Wayland, or powershell.exe 5.1 / pwsh on Windows.
-# Install the NativeHTMLKit SDK and add NativeHTMLKit.UI to PSModulePath.
+# Counter gallery: the smallest tour of states, computed text, buttons, input, checkbox and list.
+#
+# Teaches: New-NHKUiState and New-NHKUiComputed (explicit -DependsOn), passing states to a
+# button callback with -Data, a two-way input and checkbox, a text list shown or hidden with
+# Add-NHKUiWhen, a responsive card grid, and disposing computed states at the end.
+#
+# Run:  pwsh -File ./counter.ps1                      (PowerShell 7.2+, Linux or Windows)
+#       powershell.exe -NoProfile -File .\counter.ps1  (Windows PowerShell 5.1)
+# Needs: Install-Module NativeHTMLKit.UI -Scope CurrentUser (installs the NativeHTMLKit SDK too)
 Import-Module NativeHTMLKit.UI -ErrorAction Stop
 $app = Start-NativeHTMLKitScript -Name 'NativeHTMLKit UI Counter'
 $ui = New-NHKUi -Title 'NativeHTMLKit UI' -Theme cobalt -Density compact
