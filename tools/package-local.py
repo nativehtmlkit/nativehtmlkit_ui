@@ -43,7 +43,7 @@ def main() -> int:
     env = dict(os.environ)
     if 'SOURCE_DATE_EPOCH' not in env:
         try:
-            env['SOURCE_DATE_EPOCH'] = subprocess.run(['git', 'log', '-1', '--format=%ct'], cwd=ROOT,
+            env['SOURCE_DATE_EPOCH'] = subprocess.run(['git', 'log', '-1', '--format=%ct', '--', 'python'], cwd=ROOT,
                                                       capture_output=True, text=True, check=True).stdout.strip()
         except (OSError, subprocess.CalledProcessError):
             env['SOURCE_DATE_EPOCH'] = '1700000000'
