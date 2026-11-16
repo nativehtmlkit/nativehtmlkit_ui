@@ -290,7 +290,9 @@ class WindowsDesktop:
         self.key("Alt", "F4")
 
     def screenshot(self, path: Path) -> bool:
-        script = ("Add-Type -AssemblyName System.Windows.Forms,System.Drawing; "
+        script = ("Add-Type -Namespace NhkUi -Name Dpi -MemberDefinition '[DllImport(\"user32.dll\")] public static extern bool "
+                  "SetProcessDPIAware();'; [void][NhkUi.Dpi]::SetProcessDPIAware(); "
+                  "Add-Type -AssemblyName System.Windows.Forms,System.Drawing; "
                   "$b=[System.Windows.Forms.SystemInformation]::VirtualScreen; "
                   "$i=New-Object System.Drawing.Bitmap $b.Width,$b.Height; $g=[System.Drawing.Graphics]::FromImage($i); "
                   "$g.CopyFromScreen($b.Left,$b.Top,0,0,$i.Size); $i.Save('%s'); $g.Dispose(); $i.Dispose()") % str(path)
