@@ -19,8 +19,8 @@ powershell.exe -NoProfile -File .\powershell\tests\Unit.Tests.ps1   # Windows Po
 
 ## Examples against the real host (headless)
 
-`qualification/examples/run_examples.py` runs every example in `examples/` and every tutorial
-step in `docs/tutorials/code/` against the real Core host in headless test mode
+`qualification/examples/run_examples.py` runs every example and tutorial step listed in
+`examples/catalog.toml`, in Python and PowerShell, against the real Core host in headless test mode
 (`NATIVEHTMLKIT_TEST_MODE=1`) and checks the scenario in `qualification/examples/scenarios.json`.
 Use the **released** SDK packages:
 
@@ -35,7 +35,11 @@ python qualification/examples/run_examples.py --python /tmp/nhkui-venv/bin/pytho
 On Windows pass `--pwsh powershell.exe` for Windows PowerShell 5.1 (or `pwsh.exe`) and use
 `;` in `--ps-module-path`. `--lang py|ps` and `--only name1,name2` narrow the run. A JSON
 report and per-example logs are written to `--out`. See the
-[testing guide](guides/testing.md) for what the harness proves.
+testing guide ([Python](python/guides/testing.md), [PowerShell](powershell/guides/testing.md)) for what the harness
+proves. It also fails on missing coverage (a catalogue entry without both language files, a file
+without a scenario, an uncatalogued script) and when `docs/python/examples.md` or
+`docs/powershell/examples.md` is out of date; regenerate them with
+`python qualification/examples/example_pages.py`.
 
 ## GUI qualification
 

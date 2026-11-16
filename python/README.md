@@ -45,11 +45,12 @@ and accumulating shutdown callbacks with many mount cycles (B-0003).
 
 ## Documentation
 
-- [Tutorial: build an expense tracker](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/docs/tutorials/python-expense-tracker.md)
-- [How-to guides](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/docs/guides/README.md) — state, forms, lists, theming, background work, multiple windows, SDK calls, testing
-- [Python API reference](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/docs/reference/python.md) and [CSS reference](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/docs/reference/css.md)
+- [Getting started](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/docs/python/getting-started.md)
+- [Tutorials: build an expense tracker](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/docs/python/tutorials/expense-tracker.md) and [a settings editor](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/docs/python/tutorials/settings-editor.md)
+- [How-to guides](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/docs/python/guides/README.md) — state, forms, lists, theming, background work, multiple windows, SDK calls, testing
+- [Python API reference](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/docs/python/reference.md) and [CSS reference](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/docs/css.md)
 - [Architecture](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/docs/ARCHITECTURE.md)
-- [Example apps](https://github.com/nativehtmlkit/nativehtmlkit_ui/tree/main/examples/python) — expense tracker, task list, sign-up form, settings, log viewer, clipboard tool, file inspector, multi-window notes, dashboard and more
+- [Example apps](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/docs/python/examples.md) — expense tracker, task list, sign-up form, settings, log viewer, clipboard tool, file inspector, multi-window notes, dashboard and more
 - [NativeHTMLKit overview](https://github.com/nativehtmlkit/nativehtmlkit) and [public gallery](https://github.com/nativehtmlkit/nativehtmlkit/blob/main/examples/python-ui/gallery.py)
 
 ![Real NativeHTMLKit python-ui gallery captured on linux](https://raw.githubusercontent.com/nativehtmlkit/nativehtmlkit/main/assets/python-ui-linux.png)

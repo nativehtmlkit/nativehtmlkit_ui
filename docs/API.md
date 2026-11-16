@@ -8,13 +8,16 @@ packages passed the real-input GUI suite against Python/PowerShell SDK 0.1.2 and
 
 | Reference | Contents |
 |---|---|
-| [Python reference](reference/python.md) | `State`, `Computed`, `UI` and every component, mounting, scheduling, `post()`, `sync()`, diagnostics, disposal, errors |
-| [PowerShell reference](reference/powershell.md) | All 24 exported functions, state objects, owner runspace, batching, diagnostics |
-| [CSS reference](reference/css.md) | Themes, density tokens, component classes, theming hooks |
+| [Python reference](python/reference.md) | `State`, `Computed`, `UI` and every component, mounting, scheduling, `post()`, `sync()`, diagnostics, disposal, errors |
+| [PowerShell reference](powershell/reference.md) | All 24 exported functions, state objects, owner runspace, batching, diagnostics |
+| [CSS reference](css.md) | Themes, density tokens, component classes, theming hooks |
 | [Architecture](ARCHITECTURE.md) | Rendering model, how state changes become document commands, coalescing |
 
-Learning the library: [tutorials](tutorials/README.md) · task recipes:
-[how-to guides](guides/README.md) · complete apps: [examples](../examples/README.md).
+Learning the library, per language: **Python** [getting started](python/getting-started.md) ·
+[tutorials](python/tutorials/README.md) · [how-to guides](python/guides/README.md) ·
+[examples](python/examples.md) — **PowerShell** [getting started](powershell/getting-started.md) ·
+[tutorials](powershell/tutorials/README.md) · [how-to guides](powershell/guides/README.md) ·
+[examples](powershell/examples.md).
 
 ## Python quick start
 
@@ -87,15 +90,17 @@ PowerShell callbacks receive `param($eventObject, $data)` where `$data` is the `
 argument. Computed states list their dependencies explicitly. PowerShell 7.2+ on
 Linux/Windows and Windows PowerShell 5.1 on Windows are the target hosts.
 
-## Known issues (Python)
+## Known issues
 
-- **B-0002:** `Computed` can falsely raise a circular-dependency error and keep a stale value
+- **B-0002 (Python):** `Computed` can falsely raise a circular-dependency error and keep a stale value
   when its dependencies are set from several threads at once. Serialize such writes, for
   example through `ui.post()`.
-- **B-0003:** every `mount()` registers an application shutdown callback that cannot be
+- **B-0003 (Python):** every `mount()` registers an application shutdown callback that cannot be
   removed; avoid creating and discarding many UIs in a long-running application.
+- **B-0014 (both languages):** labelled inputs placed directly in a column are 200 px tall;
+  workaround `.nhk-col > .nhk-field { flex: 0 0 auto; }` as extra CSS.
 
-Details: [Python reference, known defects](reference/python.md#known-defects) and
+Details: [Python reference, known defects](python/reference.md#known-defects) and
 [limitations](LIMITATIONS.md).
 
 ## Where dialogs, clipboard and bitmaps belong
@@ -103,7 +108,8 @@ Details: [Python reference, known defects](reference/python.md#known-defects) an
 The UI deliberately does **not** wrap every SDK capability or add a modal, router or plugin
 framework. File dialogs, the clipboard, HTML `<dialog>`, native window management, live
 bitmaps and platform diagnostics are SDK functionality; call them next to the UI as shown in
-the [SDK interop guide](guides/mixing-ui-and-sdk-calls.md). SDK references:
+the SDK interop guide ([Python](python/guides/mixing-ui-and-sdk-calls.md),
+[PowerShell](powershell/guides/mixing-ui-and-sdk-calls.md)). SDK references:
 [Python SDK](https://github.com/nativehtmlkit/nativehtmlkit-python) ·
 [PowerShell SDK](https://github.com/nativehtmlkit/nativehtmlkit-powershell).
 

@@ -49,8 +49,9 @@ lifecycle and disposes its computed states.
 
 ## Documentation
 
-- [Tutorial: build an expense tracker](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/docs/tutorials/powershell-expense-tracker.md)
-- [How-to guides](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/docs/guides/README.md)
-- [PowerShell API reference](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/docs/reference/powershell.md) and [CSS reference](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/docs/reference/css.md)
+- [Getting started](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/docs/powershell/getting-started.md)
+- [Tutorials: build an expense tracker](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/docs/powershell/tutorials/expense-tracker.md) and [a settings editor](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/docs/powershell/tutorials/settings-editor.md)
+- [How-to guides](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/docs/powershell/guides/README.md)
+- [PowerShell API reference](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/docs/powershell/reference.md) and [CSS reference](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/docs/css.md)
 - [Architecture](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/docs/ARCHITECTURE.md)
-- [Example scripts](https://github.com/nativehtmlkit/nativehtmlkit_ui/tree/main/examples/powershell) — expense tracker, task list, sign-up form, settings, log viewer, background task with cancel, clipboard tool, file inspector, multi-window notes, dashboard and more
+- [Example scripts](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/docs/powershell/examples.md) — expense tracker, task list, sign-up form, settings, log viewer, background task with cancel, clipboard tool, file inspector, multi-window notes, dashboard and more

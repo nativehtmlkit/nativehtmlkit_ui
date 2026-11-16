@@ -4,8 +4,8 @@
 Python (`nativehtmlkit_ui`) and PowerShell (`NativeHTMLKit.UI`), each depending only on its
 public NativeHTMLKit SDK. No browser, JavaScript, plugin system or server.
 
-[Tutorials](docs/tutorials/README.md) · [How-to guides](docs/guides/README.md) ·
-[API reference](docs/API.md) · [Examples](examples/README.md) ·
+Docs: [Python](docs/python/README.md) · [PowerShell](docs/powershell/README.md) ·
+[API index](docs/API.md) · [Examples](examples/README.md) ·
 [Python package](python/) · [PowerShell module](powershell/)
 
 ## Python
@@ -68,11 +68,19 @@ capabilities that you call next to the UI.
 
 | | |
 |---|---|
-| Learn | [Tutorial: expense tracker in Python](docs/tutorials/python-expense-tracker.md) · [in PowerShell](docs/tutorials/powershell-expense-tracker.md) |
-| How-to | [State](docs/guides/reactive-state.md) · [Layouts](docs/guides/layouts.md) · [Forms](docs/guides/forms-and-inputs.md) · [Lists](docs/guides/lists-and-conditional-content.md) · [Theming](docs/guides/theming-and-custom-css.md) · [Background work](docs/guides/background-work.md) · [Windows](docs/guides/multiple-windows.md) · [SDK calls](docs/guides/mixing-ui-and-sdk-calls.md) · [Trusted content](docs/guides/trusted-and-untrusted-content.md) · [Testing](docs/guides/testing.md) |
-| Reference | [API index](docs/API.md) · [Python](docs/reference/python.md) · [PowerShell](docs/reference/powershell.md) · [CSS](docs/reference/css.md) |
+| | Python | PowerShell |
+|---|---|---|
+| Start | [Getting started](docs/python/getting-started.md) | [Getting started](docs/powershell/getting-started.md) |
+| Learn | Tutorials: [expense tracker](docs/python/tutorials/expense-tracker.md) · [settings editor](docs/python/tutorials/settings-editor.md) | Tutorials: [expense tracker](docs/powershell/tutorials/expense-tracker.md) · [settings editor](docs/powershell/tutorials/settings-editor.md) |
+| How-to | [10 guides](docs/python/guides/README.md) | [the same 10 guides](docs/powershell/guides/README.md) |
+| Examples | [16 apps with source](docs/python/examples.md) | [the same 16 apps](docs/powershell/examples.md) |
+| Reference | [Python API](docs/python/reference.md) | [PowerShell API](docs/powershell/reference.md) |
+
+| | |
+|---|---|
+| Shared | [API index](docs/API.md) · [CSS reference](docs/css.md) |
 | Explanation | [Architecture](docs/ARCHITECTURE.md) |
-| Examples | [12 apps per language](examples/README.md), verified by [`qualification/examples`](qualification/examples/run_examples.py) |
+| Examples | [Catalogue](examples/catalog.toml) and [overview](examples/README.md), verified by [`qualification/examples`](qualification/examples/run_examples.py) |
 | Project | [Build and qualification](docs/BUILD.md) · [Known limitations](docs/LIMITATIONS.md) |
 
 ## Project navigation

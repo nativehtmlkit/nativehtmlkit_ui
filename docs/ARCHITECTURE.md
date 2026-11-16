@@ -1,7 +1,7 @@
 # UI architecture
 
 This page explains how the UI libraries work (version 0.1.1). For exact signatures see the
-[Python](reference/python.md) and [PowerShell](reference/powershell.md) references.
+[Python](python/reference.md) and [PowerShell](powershell/reference.md) references.
 
 ```mermaid
 flowchart TB
@@ -25,7 +25,8 @@ The UI library owns three things: a declarative component tree, reactive state, 
 scheduler that turns state changes into document commands. Everything else (application
 lifecycle, windows, dialogs, clipboard, bitmaps, preferences, diagnostics bundles) stays with
 the SDK; an application uses those directly next to the UI (see the
-[SDK interop guide](guides/mixing-ui-and-sdk-calls.md)).
+SDK interop guide for [Python](python/guides/mixing-ui-and-sdk-calls.md) or
+[PowerShell](powershell/guides/mixing-ui-and-sdk-calls.md)).
 
 ## Rendering model: build once, then bind
 
@@ -48,7 +49,8 @@ that is always present and toggled with a CSS class; lists are text-only and rep
 children. This keeps native inputs (caret, selection, IME composition, focus) stable, which a
 re-render would destroy. When an app needs a variable number of interactive rows, it
 pre-allocates a fixed pool of rows and binds their visibility and text
-([slot pool guide](guides/lists-and-conditional-content.md)).
+(slot pool guide for [Python](python/guides/lists-and-conditional-content.md) and
+[PowerShell](powershell/guides/lists-and-conditional-content.md)).
 
 ## From a state change to document commands
 
