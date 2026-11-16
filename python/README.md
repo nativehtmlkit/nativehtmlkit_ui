@@ -1,31 +1,23 @@
-# `nativehtmlkit_ui` — Python
+# nativehtmlkit_ui — Python UI toolkit
 
-Pure Python UI primitives over the public [`nativehtmlkit`](https://github.com/nativehtmlkit/nativehtmlkit-python) SDK.
-No dependency on Rust sources, Core internals, the CLI, Qt, Chromium, JavaScript, Node or web servers.
-
-- Python >=3.10; SDK `nativehtmlkit` `0.1.x` is required (qualified with 0.1.0; source-checked with 0.1.1).
-- Install a qualified `nativehtmlkit` platform wheel first, then `python -m pip install --no-index --no-deps ./dist/nativehtmlkit_ui-0.1.0-py3-none-any.whl`.
-- Host-first runner: `python -m nativehtmlkit run mymodule:main --name MyApp`; `main(app)` builds/mounts UI then returns; the SDK runner owns `app.run()`.
-- For a script using direct `Application.start()`, keep side effects after `start()`; SDK re-executes the script in its backend process.
+Small reactive layouts over the public [nativehtmlkit Python SDK](https://pypi.org/project/nativehtmlkit/). Python 3.10+, NativeHTMLKit SDK 0.1.x. **Version 0.1.0 is a GitHub prerelease**; check [GitHub Releases](https://github.com/nativehtmlkit/nativehtmlkit_ui/releases) before assuming PyPI availability.
 
 ```python
-from nativehtmlkit_ui import UI, state, computed
-
-def main(app):
-    counter = state(0)
-    name = state("world")
-    greeting = computed(lambda: f"Hello, {name.value} ({counter.value})")
-    ui = UI(title="Hello", theme="cobalt", density="compact")
+from nativehtmlkit import Application
+from nativehtmlkit_ui import UI, state
+with Application.start(name='Hello UI') as app:
+    name = state('Ada')
+    ui = UI(title='Hello', theme='cobalt', density='compact')
     with ui.column():
-        ui.heading("Hello")
-        ui.text(greeting)
-        ui.input(name, label="Name")
-        ui.button("Add", on_click=lambda e: counter.set(counter.value + 1))
+        ui.heading('Hello')
+        ui.input(name, label='Name')
+        ui.text(lambda: f'Hi, {name.value}!')
     ui.mount(app)
+    app.run()
 ```
 
-Text and attribute values are escaped. `ui.raw_html()` and `extra_css` accept **trusted** source content only. Runtime values should go through `state`/bindings, never raw markup.
+Use the [full examples](https://github.com/nativehtmlkit/nativehtmlkit_ui/tree/main/examples/python) or the [public gallery](https://github.com/nativehtmlkit/nativehtmlkit/blob/main/examples/python-ui/gallery.py). The toolkit supplies buttons, forms and state, not a generic background job scheduler. Use `ui.post()` to return background results to the UI owner. Known computed-state concurrency defect is documented in [limitations](../docs/LIMITATIONS.md). A UI `<dialog>` wrapper is not provided; use the SDK if you need a native HTML dialog.
 
-One UI `UI` instance owns one SDK window/document. Create another UI instance for another window. `ui.post(callback, *args)` safely marshals work from background Python threads to the UI owner thread. `ui.sync()` is a test/explicit flush helper; `ui.dispose()` unsubscribes and stops the UI owner (it does not terminate the underlying SDK application).
+![Illustrative NativeHTMLKit component gallery, not an actual screenshot](https://raw.githubusercontent.com/nativehtmlkit/nativehtmlkit/main/assets/demo-placeholder.png)
 
-See the repository root docs for SDK integration, limitations, packaging and qualification. The initial `text_list` replaces its local region; it is not a virtualized/keyed data grid. `when` toggles visibility but keeps its subtree mounted. No router, extension system, dynamic DOM reconciliation or generic persistence layer is included.
+*Documentation illustration, not a captured application. [Run the Python UI gallery](https://github.com/nativehtmlkit/nativehtmlkit/tree/main/examples/python-ui) to inspect its real current behavior.*

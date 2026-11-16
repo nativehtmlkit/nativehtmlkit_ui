@@ -1,30 +1,16 @@
-# NativeHTMLKit UI — autonomous development rules
+# nativehtmlkit_ui — development-agent instructions
 
-This is a **separate repository** designed to live under `nativehtmlkit-project/repositories/nativehtmlkit_ui`. Read the parent Project's current `AGENTS.md`, `agents/shared.md`, `agents/environment.md`, `docs/architecture/local-releases.md`, `docs/bugs/bug_list.md` when present, then these instructions. Do not blindly apply superseded migration advice.
+**Ownership:** Python and PowerShell UI component libraries.
 
-## Architecture, hard boundaries
+This is an independent Git repository in the NativeHTMLKit ecosystem. Central issue tracking, approval and cross-repository coordination are in the private workspace `nativehtmlkit-project` under `work/bugs/` and `work/features/` (normally at `../../work/`). When cloning this repository alone, locate that private workspace using `NHK_PROJECT_ROOT`; do not create a duplicate issue register in this repository.
 
-- UI depends **only on public** `nativehtmlkit` Python SDK and `NativeHTMLKit` PowerShell module APIs. Do not import Core private modules, use Core protocol/IPC, link Rust crates, call the CLI, or manage host processes independently.
-- Do not add a plugin system, ViewSpec, contributions/registries, routing engine, JS, browser, web server, Node, or additional mandatory services.
-- Keep Python and PowerShell independently implemented with matching essential component semantics; they must never require the other language at runtime.
-- UI owns lightweight reactive state, managed nodes, event subscriptions, DOM scheduling, CSS and component lifecycle. Core owns HTML rendering; the SDK owns native window/process transport.
-- Raw HTML/CSS is **trusted source only**. Escape all runtime values. No credentials, personal data, form inputs, or tokens in tracing/logs.
-- Native input is authoritative. Do not write back every keystroke; preserve selection, caret and IME.
-- No arbitrary dependency upgrades or feature expansion beyond scoped release gates. If an SDK bug blocks work, record a standalone reproducible issue and fix in that SDK only under a separately authorized task.
+## Mandatory behavior
 
-## Engineering and release rules
+1. Read the root Project `AGENTS.md`, `governance/SCOPE.md`, `governance/ARCHITECTURE.md`, `governance/WORKFLOW.md`, and generated `STATUS.md` if the workspace is available. Read this repository's README, `docs/ARCHITECTURE.md` and `docs/BUILD.md` as relevant.
+2. Only implement an expressly approved `B-####` or `F-####` task. Scope repository changes to the assigned issue; unrelated defects must be recorded and deferred, unless blocking or security-critical.
+3. UI libraries call ONLY public language SDK APIs. Do not call Core internals, host protocol or CLI directly. Keep components deliberately minimal; no plugin systems. Verify Python/PowerShell separately. The current UI version is prerelease and known Python reactive concurrency/shutdown callback issues remain open.
+4. Never silently modify another repository, publish packages, create release tags, bump versions, erase test evidence or change native host binaries. Those actions need separate task authorization and qualification.
+5. Verify against the actual public API and released binary versions. Report exact commands, pass/fail/skip, runtime/OS and outstanding issues. Keep issue records current and regenerate central `STATUS.md` after work.
+6. Public README/API/tutorials contain **only** verified user-facing information and never private workspace logs, credential details or release plans. Repo-local architecture is owned here, not duplicated in landing docs.
 
-- Read actual SDK source/contracts before changing integrations. Source from supplied ZIPs is a snapshot and may not match the user's current local checkouts.
-- Test pure logic first; fake SDK integration second; then real interactive KDE Wayland and Windows Server GUI, Python and PowerShell 7 and Windows PowerShell 5.1. SSH-only sessions do **not** prove interactive GUI behavior.
-- Keep a local evidence directory (ignored) with commands, exact versions, hashes, screenshots and failures. Do not claim native qualification from headless or mocked tests.
-- Local builds and tests only. No build/test GitHub Actions. The only workflows are the manual publish-only `pypi_publish.yml` and `psgallery_publish.yml` (owner decision 2026-11-16, allow-listed by the Project's `scripts/check_workspace.py`); dispatching one is a publication that needs an explicit owner request for that version. Do not push, publish, tag, create GitHub repo, change VM snapshots or modify other repositories without explicit authorization.
-- Respect parent Project's independently versioned release and source provenance policy.
-- On completion: summarize commits, actual tests, failures, remaining issues, and copy-ready release steps; no "all passed" claims without evidence.
-
-## Build/test sequence
-
-1. Python: `PYTHONPATH=python/src python -m pytest -q python/tests`.
-2. Build offline: `python tools/package-local.py --out dist` and verify packaged wheel and module zip.
-3. PowerShell: ensure SDK module discoverable; `pwsh -NoProfile -File powershell/tests/Smoke.ps1`, then Windows PowerShell 5.1 equivalent.
-4. Interactive SDK-host-backed gallery: `examples/python/counter.py` and `examples/powershell/counter.ps1`, with click, edit, checkbox, dynamic list and close cycles.
-5. Run the matrix in `docs/QUALIFICATION.md`; record evidence and defects instead of hiding them.
+For this repository's public user documentation, start at its `README.md` and `docs/`. For public onboarding across all entrypoints, see https://github.com/nativehtmlkit/nativehtmlkit .

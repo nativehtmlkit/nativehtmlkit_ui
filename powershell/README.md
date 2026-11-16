@@ -1,11 +1,23 @@
-# NativeHTMLKit.UI — PowerShell
+# NativeHTMLKit.UI — PowerShell UI toolkit
 
-Pure PowerShell UI toolkit using only public [`NativeHTMLKit`](https://github.com/nativehtmlkit/nativehtmlkit-powershell) SDK cmdlets. PowerShell 7.2+ and Windows PowerShell 5.1. No Python or browser.
+A compact component layer using only the public [NativeHTMLKit PowerShell SDK](https://www.powershellgallery.com/packages/NativeHTMLKit). PowerShell 7.2+ (Linux and Windows) and Windows PowerShell 5.1 (Windows). **The 0.1.0 UI build is a prerelease**; check Gallery and GitHub Releases for the currently available package.
 
-Install a locally qualified `NativeHTMLKit` SDK module first, then copy `NativeHTMLKit.UI` to a folder on `$env:PSModulePath`, or import `NativeHTMLKit.UI.psd1` by absolute path.
+```powershell
+Import-Module NativeHTMLKit.UI
+$app = Start-NativeHTMLKitScript -Name 'Hello UI'
+$ui = New-NHKUi -Title 'Hello' -Theme cobalt -Density compact
+$name = New-NHKUiState -Value 'Ada'
+$null = Add-NHKUiColumn -UI $ui -Content {
+    $null = Add-NHKUiHeading -UI $ui -Text 'Hello'
+    $null = Add-NHKUiInput -UI $ui -Bind $name -Label 'Name'
+}
+try {
+    $null = Start-NHKUi -UI $ui -Application $app
+    Wait-NativeHTMLKit -Application $app -UntilShutdown
+} finally {
+    Stop-NHKUi -UI $ui
+    Close-NativeHTMLKit -Application $app
+}
+```
 
-See `examples/powershell/counter.ps1` for the complete executable example. The SDK launcher starts the host; `Start-NHKUi` creates a window, loads markup, subscribes to events and calls `Set-NativeHTMLKitReady`. `Wait-NativeHTMLKit -Application $app -UntilShutdown` is still the SDK's event pump. Close the UI with `Stop-NHKUi` before closing the SDK application.
-
-State changes must happen on the owning PowerShell runspace. Use `Start-NativeHTMLKitTask` and `-OnCompleted` callbacks for background work; do not pass SDK objects or reactive states into a task worker. `New-NHKUiComputed` uses explicit `-DependsOn` states and receives `-Data` instead of automatic Python-style dependency tracking. Event handlers receive `param($eventObject,$data)`; prefer `-Data` over `.GetNewClosure()`. Changes made in a handler are written once after it returns; outside handlers each `State.Set()` is written when it returns, and `Invoke-NHKUiBatch -UI $ui -ScriptBlock { ... }` writes a block of changes once. `Get-NHKUiDiagnostics` reports errors, uncertain DOM state, update counts and whether the UI was disposed (a closed window or app shutdown disposes it).
-
-`Add-NHKUiHtml` and `-ExtraCss` accept **trusted** content only; the rest of the public components escape text and attributes. `Add-NHKUiWhen` hides/shows a persistently mounted region. `Add-NHKUiTextList` is a bounded text list, not a virtualized grid. The module does not install or execute plugins.
+Use [counter.ps1](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/examples/powershell/counter.ps1) for events and computed state. The module does not create its own host or HTTP service; the application remains responsible for SDK lifecycle and for disposing computed states.

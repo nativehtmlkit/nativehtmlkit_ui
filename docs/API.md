@@ -1,64 +1,50 @@
-# API 0.1 — small public toolkit
+# UI library public API — version 0.1.0
 
-Both bindings provide similar **capabilities**, not identical syntax. New controls should be added only when needed by a real application and must pass cross-language tests.
+This reference documents the **actual small component surface**, not future roadmap concepts. It covers the Python `nativehtmlkit_ui` and PowerShell `NativeHTMLKit.UI` packages. Both depend solely on their respective **public** NativeHTMLKit SDK APIs. The UI package was published as a GitHub v0.1.0 **prerelease**, and its interactive qualification was against SDK 0.1.0/Core 1.0.2; current SDK 0.1.1/Core 1.0.3 combinations need renewed GUI verification.
 
-## Python
+## Python quick start
 
 ```python
+from nativehtmlkit import Application
 from nativehtmlkit_ui import UI, state, computed
 
-name = state('Ada')
-message = computed(lambda: f'Hello {name.value}')
-ui = UI(title='Hello', theme='cobalt', density='compact')
-
-with ui.column():
-    ui.heading('Title', level=1)
-    ui.text(message)
-    ui.input(name, label='Name')
-    ui.button('Reset', on_click=lambda event: name.set('Ada'), variant='secondary')
-
-# An SDK `Application` object is passed from main(app) or Application.start().
-ui.mount(app)
-# If using an SDK direct script: app.run() on the main thread.
+with Application.start(name="Counter") as app:
+    count = state(0)
+    view = UI(title="Counter", theme="cobalt", density="compact")
+    with view.column():
+        view.heading("Counter")
+        view.text(lambda: f"Count: {count.value}")
+        view.button("Increment", on_click=lambda event: count.set(count.value + 1))
+    view.mount(app)
+    app.run()
+    view.dispose()
 ```
 
-| Area | API |
+| Concept | Public API |
 |---|---|
-| State | `state(value) -> State`, `.value`, `.set(value)`, `.subscribe(callback) -> unsubscribe` |
-| Computed | `computed(fn) -> Computed`, `.value`, `.close()` |
-| UI construct | `UI(title=...,width=...,height=...,theme=...,density=...,extra_css=...)` |
-| Layout | `with ui.row()/column()/grid()/card()/stack():` |
-| Display | `ui.heading(value,level=1..4)`, `ui.text(value,muted=False)`, `ui.badge(value)`, `ui.alert(value)` |
-| Inputs | `ui.button(label,on_click,variant,disabled)`, `ui.input(state,label,placeholder,kind)`, `ui.checkbox(state,label)`, `ui.select(state, choices=[(value,label)], label='')` |
-| Dynamic | `with ui.when(condition):`, `ui.text_list(state_or_fn,formatter=str)` |
-| Native custom | `ui.raw_html(trusted_markup)`, `ui.element(allowed_tag,attrs,text)` |
-| Lifecycle | `ui.mount(app)`, `ui.dispose()/close()`, `ui.post(fn,*args)`, `ui.sync()`, `ui.diagnostics` |
-| Diagnostics keys | `errors`, `event_queue_dropped`, `pending_updates`, `dom_uncertain`, `updates`, `operations`, `subscriptions`, `disposed`, `discarded_after_close` |
+| Reactive data | `state(value)`, `.set()`, `.subscribe()`; `computed(lambda: ...)`, `.close()` |
+| Root UI | `UI(title, width, height, theme, density, extra_css)`, `.mount(app)`, `.dispose()` |
+| Layout | `with ui.row()`, `.column()`, `.grid()`, `.card()`, `.stack()` |
+| Display | `.heading()`, `.text()`, `.badge()`, `.alert()` |
+| Form controls | `.button()`, `.input()`, `.checkbox()`, `.select()` |
+| Dynamic content | `with ui.when(condition)`, `.text_list()` |
+| Trusted markup | `.raw_html(markup)`, `.element(tag, attrs, text)` |
+| Diagnostics | `.sync()`, `.post(callable, *args)`, `.diagnostics` |
 
-`value` arguments support literal strings, `State`, `Computed` and functions (lambda) for display/heading/badge/alert. Only `State` supports two-way form inputs. `ui.text_list` always escapes item strings and reconstructs its local `<ul>` when the source collection changes. `ui.when` hides/shows a permanently mounted region.
+All visual writes pass through the UI's public SDK document handle. Use `.post()` to marshal worker results into the UI owner context. **Known issue:** the current Python `Computed` implementation can lose updates under concurrent recomputation; avoid concurrent cross-thread updates to the same computed state until bug B-0002 is resolved and verified. UI teardown can leave registered application shutdown callbacks (B-0003).
 
-Do not mutate the layout tree after `mount`; use state bindings. Public SDK handles remain available as `ui.window`, `ui.document`, and `ui.app` for operations outside managed subtrees. The UI never owns the SDK application shutdown.
-
-The Python UI owner serializes SDK writes; `ui.post()` is a lightweight queue, not a general-purpose task scheduler. Schedule blocking work in standard Python threads/futures and return results via `ui.post()`. `State.set()` may also be called from any thread: bindings coalesce changes and write them on the UI owner (1000 background updates settled in about 6 ms in qualification, two SDK calls).
-
-Failure semantics (both languages): a write the host definitely rejected because the document is gone (`StaleDocumentError`, RPC `-32004` closed, `-32008` shutting down) **disposes the UI quietly** and is counted in `discarded_after_close`; a timeout, disconnect or any other failure marks `dom_uncertain`, stops managed writes, is logged, and is re-raised by `ui.sync()`. Event-queue overflow (4096 pending events) drops the event, counts it in `event_queue_dropped` and logs once; it never raises into the SDK event worker and lost events are not reconstructed.
-
-## PowerShell
+## PowerShell quick start
 
 ```powershell
 Import-Module NativeHTMLKit.UI
-$app = Start-NativeHTMLKitScript -Name 'Hello'
-$name = New-NHKUiState -Value 'Ada'
-$message = New-NHKUiComputed -DependsOn @($name) -Data $name -Compute {
-    param($source) "Hello $($source.Value)"
-}
-$ui = New-NHKUi -Title 'Hello'
+$app = Start-NativeHTMLKitScript -Name 'Counter'
+$ui = New-NHKUi -Title 'Counter' -Theme cobalt -Density compact
+$count = New-NHKUiState -Value 0
 $null = Add-NHKUiColumn -UI $ui -Content {
-    $null = Add-NHKUiHeading -UI $ui -Text 'Title' -Level 1
-    $null = Add-NHKUiText -UI $ui -Bind $message
-    $null = Add-NHKUiInput -UI $ui -Bind $name -Label 'Name'
-    $null = Add-NHKUiButton -UI $ui -Text 'Reset' -Data $name -OnClick {
-        param($eventObject,$state) $state.Set('Ada')
+    $null = Add-NHKUiHeading -UI $ui -Text 'Counter'
+    $null = Add-NHKUiText -UI $ui -Bind $count
+    $null = Add-NHKUiButton -UI $ui -Text 'Increment' -Data $count -OnClick {
+        param($eventObject,$s) $s.Set([int]$s.Value + 1)
     }
 }
 try {
@@ -66,34 +52,32 @@ try {
     Wait-NativeHTMLKit -Application $app -UntilShutdown
 } finally {
     Stop-NHKUi -UI $ui
-    $message.Dispose()
     Close-NativeHTMLKit -Application $app
 }
 ```
 
-| Area | API |
+| Concept | Public API |
 |---|---|
-| State | `New-NHKUiState -Value`, `.Value`, `.Set()`, `.Subscribe()`, `.Unsubscribe()` |
-| Computed | `New-NHKUiComputed -Compute -DependsOn -Data`, `.Dispose()` |
-| Construct | `New-NHKUi -Title -Width -Height -Theme -Density -ExtraCss` |
-| Layout | `Add-NHKUiRow`, `Column`, `Grid`, `Card` with `-UI` and `-Content` |
-| Display | `Add-NHKUiHeading`, `Text`, `Badge`, `Alert` (`-Text` / `-Bind`) |
-| Inputs | `Add-NHKUiButton -Text/-Bind -OnClick -Data -Variant -DisabledState`, `Add-NHKUiInput`, `Checkbox`, `Select` (`-Bind`) |
-| Dynamic | `Add-NHKUiWhen -Bind -Content`, `Add-NHKUiTextList -Bind` |
-| Native custom | `Add-NHKUiHtml -Markup` (trusted) |
-| Lifecycle | `Start-NHKUi -UI -Application [-NoReady]`, `Stop-NHKUi`, `Sync-NHKUi`, `Invoke-NHKUiBatch -UI -ScriptBlock`, `Get-NHKUiHtml`, `Get-NHKUiDiagnostics` |
-| Diagnostics | `DomUncertain`, `LastError`, `Errors`, `PendingUpdates`, `Updates`, `Operations`, `Subscriptions`, `DiscardedAfterClose`, `Disposed` |
+| State | `New-NHKUiState`, `.Value`, `.Set()`, `.Subscribe()` |
+| Computed state | `New-NHKUiComputed -DependsOn ... -Data ... -Compute ...`, `.Dispose()` |
+| Layout | `New-NHKUi`, `Add-NHKUiRow`, `Add-NHKUiColumn`, `Add-NHKUiGrid`, `Add-NHKUiCard` |
+| Display | `Add-NHKUiHeading`, `Add-NHKUiText`, `Add-NHKUiBadge`, `Add-NHKUiAlert` |
+| Inputs | `Add-NHKUiButton`, `Add-NHKUiInput`, `Add-NHKUiCheckbox`, `Add-NHKUiSelect` |
+| Dynamic | `Add-NHKUiWhen`, `Add-NHKUiTextList` |
+| Lifecycle | `Start-NHKUi`, `Stop-NHKUi`, `Sync-NHKUi`, `Invoke-NHKUiBatch` |
+| Diagnostics | `Get-NHKUiDiagnostics` |
 
-PowerShell bindings require explicit state dependencies for computed values. Event handlers are scriptblocks that accept `param($eventObject, $data)`, with `-Data` supplied when registered. State changes must happen on the SDK owner runspace; use SDK task completion callbacks to deliver background results. `Start-NHKUi` calls SDK `Set-NativeHTMLKitReady` unless `-NoReady` is specified. The caller owns `Wait-NativeHTMLKit` and SDK shutdown.
+PowerShell event handlers receive `param($eventObject, $data)` when the helper's `-Data` argument is supplied. Computed values specify dependencies explicitly. PowerShell 7.2+ on Linux/Windows and Windows PowerShell 5.1 on Windows are the target hosts, not an assurance of full component parity in every environment.
 
-`Add-NHKUiSelect -Options` expects records like `@(@{Value='a';Label='A'}, @{Value='b';Label='B'})`.
+## Where native dialogs and bitmap surfaces belong
 
-Write timing in PowerShell: changes made inside a UI event callback are written once, after the callback. A `State.Set()` made elsewhere is written when that `Set` (including every computed state it cascades into) returns: one SDK call per `Set`, about 5 ms each with a real host. For loops, wrap the changes in `Invoke-NHKUiBatch -UI $ui -ScriptBlock { ... }` to write them once (1000 changes in about 120 ms in qualification). `.Subscribe($callback, $context)` callbacks receive `($newValue, $context)`.
+The UI package deliberately does **not** wrap every SDK capability or add a generic modal/router/plugin framework. File dialogs, HTML `<dialog>`, native window management, bitmap resources and platform diagnostics remain **SDK-level** functionality. Use the [Python SDK](https://github.com/nativehtmlkit/nativehtmlkit-python) or [PowerShell SDK](https://github.com/nativehtmlkit/nativehtmlkit-powershell) API directly. See the [four source galleries](https://github.com/nativehtmlkit/nativehtmlkit/tree/main/examples) for practical demonstrations.
 
-## Native behavior and limitations
+## Known limits
 
-- Component events are native events delivered **after** host dispatch. To prevent default form/keyboard behavior use the SDK's existing public prevent-default API in advance.
-- Input bindings avoid echo updates. Real IME/caret behavior must be qualified in interactive desktops.
-- UI component markup and structure are deliberately retained after mount, not arbitrarily rebuilt.
-- A failed DOM batch or command makes UI DOM state uncertain; inspect diagnostics rather than silently continuing.
-- The complete Core/SDK method set remains accessible to applications through the SDK, outside the UI-managed subtree. No direct Core protocol calls from the UI package.
+- The prerelease is not fully screen-reader qualified.
+- Multi-monitor and mixed-DPI behavior require additional native GUI qualification.
+- Python computed-state concurrency and shutdown callback retention are open issues.
+- Always confirm behavior against the exact host/SDK versions being distributed.
+
+[Architecture](ARCHITECTURE.md) · [Build and qualification](BUILD.md) · [Examples](EXAMPLES.md) · [Limitations](LIMITATIONS.md)
