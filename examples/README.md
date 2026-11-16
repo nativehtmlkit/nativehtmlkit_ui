@@ -53,3 +53,29 @@ SDK diagnostics, exit code 0 and no leftover processes. See the
 prove. Headless mode has no clipboard or file dialogs, so for `clipboard_tool` and
 `file_picker` the harness verifies the "unavailable" error handling, not the dialogs
 themselves.
+
+## Screenshots
+
+Real captures on KDE Plasma 6.6 Wayland (100% scaling) with Core 1.0.3, Python/PowerShell SDK 0.1.2 and UI 0.1.1, taken by running each example unchanged. Windows looks the same apart from the window frame.
+
+### Python
+
+| | |
+|---|---|
+| [background](python/background.py)<br>![background](../docs/images/examples/ui-py-background.png) | [clipboard_tool](python/clipboard_tool.py)<br>![clipboard_tool](../docs/images/examples/ui-py-clipboard_tool.png) |
+| [counter](python/counter.py)<br>![counter](../docs/images/examples/ui-py-counter.png) | [dashboard](python/dashboard.py)<br>![dashboard](../docs/images/examples/ui-py-dashboard.png) |
+| [expenses](python/expenses.py)<br>![expenses](../docs/images/examples/ui-py-expenses.png) | [file_picker](python/file_picker.py)<br>![file_picker](../docs/images/examples/ui-py-file_picker.png) |
+| [log_viewer](python/log_viewer.py)<br>![log_viewer](../docs/images/examples/ui-py-log_viewer.png) | [message_preview](python/message_preview.py)<br>![message_preview](../docs/images/examples/ui-py-message_preview.png) |
+| [multi_window](python/multi_window.py)<br>![multi_window](../docs/images/examples/ui-py-multi_window.png) | [settings](python/settings.py)<br>![settings](../docs/images/examples/ui-py-settings.png) |
+| [signup_form](python/signup_form.py)<br>![signup_form](../docs/images/examples/ui-py-signup_form.png) | [todo](python/todo.py)<br>![todo](../docs/images/examples/ui-py-todo.png) |
+
+### PowerShell
+
+| | |
+|---|---|
+| [background](powershell/background.ps1)<br>![background](../docs/images/examples/ui-ps-background.png) | [clipboard_tool](powershell/clipboard_tool.ps1)<br>![clipboard_tool](../docs/images/examples/ui-ps-clipboard_tool.png) |
+| [counter](powershell/counter.ps1)<br>![counter](../docs/images/examples/ui-ps-counter.png) | [dashboard](powershell/dashboard.ps1)<br>![dashboard](../docs/images/examples/ui-ps-dashboard.png) |
+| [expenses](powershell/expenses.ps1)<br>![expenses](../docs/images/examples/ui-ps-expenses.png) | [file_picker](powershell/file_picker.ps1)<br>![file_picker](../docs/images/examples/ui-ps-file_picker.png) |
+| [log_viewer](powershell/log_viewer.ps1)<br>![log_viewer](../docs/images/examples/ui-ps-log_viewer.png) | [message_preview](powershell/message_preview.ps1)<br>![message_preview](../docs/images/examples/ui-ps-message_preview.png) |
+| [multi_window](powershell/multi_window.ps1)<br>![multi_window](../docs/images/examples/ui-ps-multi_window.png) | [settings](powershell/settings.ps1)<br>![settings](../docs/images/examples/ui-ps-settings.png) |
+| [signup_form](powershell/signup_form.ps1)<br>![signup_form](../docs/images/examples/ui-ps-signup_form.png) | [todo](powershell/todo.ps1)<br>![todo](../docs/images/examples/ui-ps-todo.png) |

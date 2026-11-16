@@ -52,6 +52,6 @@ and accumulating shutdown callbacks with many mount cycles (B-0003).
 - [Example apps](https://github.com/nativehtmlkit/nativehtmlkit_ui/tree/main/examples/python) — expense tracker, task list, sign-up form, settings, log viewer, clipboard tool, file inspector, multi-window notes, dashboard and more
 - [NativeHTMLKit overview](https://github.com/nativehtmlkit/nativehtmlkit) and [public gallery](https://github.com/nativehtmlkit/nativehtmlkit/blob/main/examples/python-ui/gallery.py)
 
-![Illustrative NativeHTMLKit component gallery, not an actual screenshot](https://raw.githubusercontent.com/nativehtmlkit/nativehtmlkit/main/assets/demo-placeholder.png)
+![Real NativeHTMLKit python-ui gallery captured on linux](https://raw.githubusercontent.com/nativehtmlkit/nativehtmlkit/main/assets/python-ui-linux.png)
 
-*Documentation illustration, not a captured application. [Run the Python UI gallery](https://github.com/nativehtmlkit/nativehtmlkit/tree/main/examples/python-ui) to inspect its real current behavior.*
+*Reviewed desktop screenshot captured on linux. [Run the Python UI gallery](https://github.com/nativehtmlkit/nativehtmlkit/tree/main/examples/python-ui) to test it on your system.*
