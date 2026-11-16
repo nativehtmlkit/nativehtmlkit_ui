@@ -96,6 +96,15 @@ No extension/plugin host, contribution registry, ViewSpec, virtual DOM, HTTP/JS,
 - Native events are post-dispatch; prevent default actions *before* the event using the underlying public SDK API.
 - SDK queue pressure, input/IME correctness, native CSS rendering and host shutdown all require real qualification. Do not infer interactive readiness from pure-unit tests.
 
+## Releases and registries
+
+Packages are built, tested and checksummed **locally** (`python tools/package-local.py --out dist`), then attached with `dist/SHA256SUMS` to a GitHub Release. Two manual, publish-only workflows push those exact files to the registries; they never build or test:
+
+- `.github/workflows/pypi_publish.yml` - PyPI project `nativehtmlkit_ui` (trusted publishing, environment `pypi`): `gh workflow run pypi_publish.yml -f tag=v0.1.0 -f confirm=nativehtmlkit_ui`
+- `.github/workflows/psgallery_publish.yml` - PowerShell Gallery module `NativeHTMLKit.UI` (environment `powershellgallery`): `gh workflow run psgallery_publish.yml -f tag=v0.1.0 -f confirm=NativeHTMLKit.UI`. It refuses to publish until the required `NativeHTMLKit` SDK module is on the Gallery.
+
+`pip install nativehtmlkit_ui` resolves once the `nativehtmlkit` SDK is on PyPI; until then install the SDK wheel from its GitHub Release first. Registry versions can never be replaced.
+
 ## Read next
 
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — component/state model and tradeoffs.

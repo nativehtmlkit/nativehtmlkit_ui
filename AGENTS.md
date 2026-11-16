@@ -17,7 +17,7 @@ This is a **separate repository** designed to live under `nativehtmlkit-project/
 - Read actual SDK source/contracts before changing integrations. Source from supplied ZIPs is a snapshot and may not match the user's current local checkouts.
 - Test pure logic first; fake SDK integration second; then real interactive KDE Wayland and Windows Server GUI, Python and PowerShell 7 and Windows PowerShell 5.1. SSH-only sessions do **not** prove interactive GUI behavior.
 - Keep a local evidence directory (ignored) with commands, exact versions, hashes, screenshots and failures. Do not claim native qualification from headless or mocked tests.
-- Local builds and tests only. No build/test GitHub Actions. Do not push, publish, tag, create GitHub repo, change VM snapshots or modify other repositories without explicit authorization.
+- Local builds and tests only. No build/test GitHub Actions. The only workflows are the manual publish-only `pypi_publish.yml` and `psgallery_publish.yml` (owner decision 2026-11-16, allow-listed by the Project's `scripts/check_workspace.py`); dispatching one is a publication that needs an explicit owner request for that version. Do not push, publish, tag, create GitHub repo, change VM snapshots or modify other repositories without explicit authorization.
 - Respect parent Project's independently versioned release and source provenance policy.
 - On completion: summarize commits, actual tests, failures, remaining issues, and copy-ready release steps; no "all passed" claims without evidence.
 

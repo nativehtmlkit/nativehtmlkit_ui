@@ -1,0 +1,83 @@
+# PUBLISH-ONLY workflow (owner decision 2026-11-16, same pattern as nativehtmlkit-powershell).
+# It never builds or tests anything. It takes the module package that was built and qualified locally
+# and already attached to a GitHub Release, verifies it against that release's SHA256SUMS, and pushes
+# it to the PowerShell Gallery. Manual dispatch only.
+name: Publish release module to the PowerShell Gallery
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "GitHub Release tag whose module package to publish (for example v0.1.0)"
+        required: true
+        type: string
+      confirm:
+        description: "Type the module name (NativeHTMLKit.UI) to confirm; Gallery versions can never be replaced"
+        required: true
+        type: string
+
+permissions: {}
+
+concurrency:
+  group: psgallery-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Verify release package and publish
+    runs-on: ubuntu-latest
+    environment: powershellgallery
+    permissions:
+      contents: read
+    steps:
+      - name: Check the confirmation
+        env:
+          CONFIRM: ${{ inputs.confirm }}
+        run: |
+          if [ "$CONFIRM" != "NativeHTMLKit.UI" ]; then
+            echo "::error::confirmation text does not match the module name"; exit 1
+          fi
+
+      - name: Download the release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          case "$TAG" in v[0-9]*) ;; *) echo "::error::tag must look like v1.2.3"; exit 1;; esac
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --dir assets
+          ls -l assets
+
+      - name: Verify checksums and unpack
+        run: |
+          cd assets
+          test -f SHA256SUMS || { echo "::error::release has no SHA256SUMS"; exit 1; }
+          sha256sum --check --strict SHA256SUMS
+          set -- NativeHTMLKit.UI-*.zip
+          [ "$#" -eq 1 ] && [ -f "$1" ] || { echo "::error::expected exactly one NativeHTMLKit.UI-*.zip"; exit 1; }
+          grep -q "  $1\$" SHA256SUMS || { echo "::error::$1 is not listed in SHA256SUMS"; exit 1; }
+          mkdir ../module && unzip -q "$1" -d ../module
+
+      - name: Check the manifest and its Gallery dependency
+        shell: pwsh
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $manifest = Import-PowerShellDataFile ./module/NativeHTMLKit.UI/NativeHTMLKit.UI.psd1
+          if ("v$($manifest.ModuleVersion)" -ne $env:TAG) { throw "manifest version $($manifest.ModuleVersion) does not match tag $env:TAG" }
+          foreach ($dep in $manifest.RequiredModules) {
+            $found = Find-PSResource -Name $dep.ModuleName -Repository PSGallery -ErrorAction SilentlyContinue |
+              Where-Object { $_.Version -ge [version]$dep.ModuleVersion }
+            if (-not $found) { throw "required module $($dep.ModuleName) >= $($dep.ModuleVersion) is not on the PowerShell Gallery yet; publish it first" }
+          }
+          "Publishing NativeHTMLKit.UI $($manifest.ModuleVersion)"
+
+      - name: Publish to the PowerShell Gallery
+        shell: pwsh
+        env:
+          POWERSHELL_GALLERY_API_KEY: ${{ secrets.POWERSHELL_GALLERY_API_KEY }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if (-not $env:POWERSHELL_GALLERY_API_KEY) { throw 'POWERSHELL_GALLERY_API_KEY is not set in the powershellgallery environment' }
+          Publish-PSResource -Path ./module/NativeHTMLKit.UI -Repository PSGallery -ApiKey $env:POWERSHELL_GALLERY_API_KEY
+          "Published."

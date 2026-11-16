@@ -1,0 +1,75 @@
+# PUBLISH-ONLY workflow (owner decision 2026-11-16, same pattern as nativehtmlkit-python).
+# It never builds or tests anything. It takes the wheel that was built and qualified locally and
+# already attached to a GitHub Release, verifies it against that release's SHA256SUMS, and uploads
+# it to PyPI through trusted publishing (no API token). Manual dispatch only.
+name: Publish release wheel to PyPI
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "GitHub Release tag whose wheel to publish (for example v0.1.0)"
+        required: true
+        type: string
+      confirm:
+        description: "Type the PyPI project name (nativehtmlkit_ui) to confirm; PyPI versions can never be replaced"
+        required: true
+        type: string
+
+permissions: {}
+
+concurrency:
+  group: pypi-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Verify release assets and upload
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Check the confirmation
+        env:
+          CONFIRM: ${{ inputs.confirm }}
+        run: |
+          if [ "$CONFIRM" != "nativehtmlkit_ui" ]; then
+            echo "::error::confirmation text does not match the project name"; exit 1
+          fi
+
+      - name: Download the release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ inputs.tag }}
+        run: |
+          case "$TAG" in v[0-9]*) ;; *) echo "::error::tag must look like v1.2.3"; exit 1;; esac
+          gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --dir assets
+          ls -l assets
+
+      - name: Verify checksums and select the wheel
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          cd assets
+          test -f SHA256SUMS || { echo "::error::release has no SHA256SUMS"; exit 1; }
+          sha256sum --check --strict SHA256SUMS
+          version="${TAG#v}"
+          mkdir ../dist
+          count=0
+          for wheel in *.whl; do
+            grep -q "  $wheel\$" SHA256SUMS || { echo "::error::$wheel is not listed in SHA256SUMS"; exit 1; }
+            case "$wheel" in
+              "nativehtmlkit_ui-$version-py3-none-any.whl") cp "$wheel" ../dist/; count=$((count + 1));;
+              *) echo "::error::$wheel does not match version $version"; exit 1;;
+            esac
+          done
+          [ "$count" -eq 1 ] || { echo "::error::expected exactly one wheel in the release"; exit 1; }
+          ls -l ../dist
+
+      - name: Upload to PyPI
+        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
+        with:
+          packages-dir: dist
+          print-hash: true
