@@ -6,8 +6,8 @@ Python (fake SDK, no native host):
 
 ```bash
 cd python
-PYTHONPATH=src python -m pytest -q tests
-python -m build
+PYTHONPATH=src uv run --no-project --with pytest pytest -q tests
+uv build
 ```
 
 PowerShell (fake SDK module in `powershell/tests/FakeSdk`; exit code = number of failures):
@@ -25,10 +25,10 @@ powershell.exe -NoProfile -File .\powershell\tests\Unit.Tests.ps1   # Windows Po
 Use the **released** SDK packages:
 
 ```bash
-python -m venv /tmp/nhkui-venv
-/tmp/nhkui-venv/bin/python -m pip install nativehtmlkit==0.1.2 ./python      # SDK wheel + this UI from source
+uv venv /tmp/nhkui-venv
+uv pip install --python /tmp/nhkui-venv/bin/python nativehtmlkit==0.1.2 ./python   # SDK wheel + this UI from source
 mkdir -p /tmp/nhk-modules && unzip NativeHTMLKit-0.1.2-linux-x64+win-x64.zip -d /tmp/nhk-modules
-python qualification/examples/run_examples.py --python /tmp/nhkui-venv/bin/python \
+uv run qualification/examples/run_examples.py --python /tmp/nhkui-venv/bin/python \
     --ps-module-path "/tmp/nhk-modules:$PWD/powershell" --out /tmp/nhkui-examples
 ```
 
@@ -39,7 +39,7 @@ testing guide ([Python](python/guides/testing.md), [PowerShell](powershell/guide
 proves. It also fails on missing coverage (a catalogue entry without both language files, a file
 without a scenario, an uncatalogued script) and when `docs/python/examples.md` or
 `docs/powershell/examples.md` is out of date; regenerate them with
-`python qualification/examples/example_pages.py`.
+`uv run qualification/examples/example_pages.py`.
 
 ## GUI qualification
 

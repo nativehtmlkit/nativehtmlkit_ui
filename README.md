@@ -66,8 +66,6 @@ capabilities that you call next to the UI.
 
 ## Documentation
 
-| | |
-|---|---|
 | | Python | PowerShell |
 |---|---|---|
 | Start | [Getting started](docs/python/getting-started.md) | [Getting started](docs/powershell/getting-started.md) |
