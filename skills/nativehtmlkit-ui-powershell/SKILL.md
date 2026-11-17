@@ -5,7 +5,7 @@ description: Build compact reactive PowerShell desktop UIs through NativeHTMLKit
 
 # NativeHTMLKit PowerShell UI
 
-Use `Import-Module NativeHTMLKit.UI` with a supported public `NativeHTMLKit` SDK. This UI is a **0.1.1 prerelease**. State changes occur on the SDK owner runspace.
+Use `Import-Module NativeHTMLKit.UI` with a supported public `NativeHTMLKit` SDK. This UI is an **early 0.1.x (pre-1.0) release**. State changes occur on the SDK owner runspace.
 
 ```powershell
 Import-Module NativeHTMLKit.UI
