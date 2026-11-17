@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Enable/restore fcitx5 (Pinyin) as KWin's Wayland input method for the desktop user (linuxDEV).
+# Enable/restore fcitx5 (Pinyin) as KWin's Wayland input method for the desktop user of a KDE Plasma Wayland session.
 #   linux-ime.sh on STATE_DIR | off STATE_DIR
 # "on" snapshots the current KWin/fcitx5 settings into STATE_DIR first; "off" restores them.
 # Same mechanism as the Project's native-journeys lab-settings.sh (ime-on/ime-off).
