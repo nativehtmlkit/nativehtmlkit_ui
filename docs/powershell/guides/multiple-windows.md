@@ -54,7 +54,7 @@ Register-NativeHTMLKitNotification -Application $app -Method 'window.event' -Cal
 
 ## Limits
 
-The Python shutdown-callback defect B-0003 does not apply: `Start-NHKUi` registers no
+The Python shutdown-callback defect does not apply: `Start-NHKUi` registers no
 application shutdown callback. Still keep the number of windows bounded; the example allows
 three inspectors at a time.
 

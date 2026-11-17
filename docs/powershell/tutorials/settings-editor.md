@@ -74,7 +74,7 @@ and edit the fields: the summary below follows every change.
 - The summary contains `<` and `>` around the e-mail address; `Add-NHKUiText` always encodes
   text, so this is safe.
 - The inputs are inside a card, so they keep their natural height. Labelled inputs placed
-  directly in a column need the B-0014 workaround from the [layouts guide](../guides/layouts.md).
+  directly in a column need the column field-height workaround from the [layouts guide](../guides/layouts.md).
 
 ## Step 2: load, validate, save and revert
 

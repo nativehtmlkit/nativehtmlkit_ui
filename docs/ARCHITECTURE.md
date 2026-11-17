@@ -117,7 +117,7 @@ At most one flush is outstanding. All `set()` calls that happen before it runs, 
 event callback, in posted functions queued ahead of it, or in a burst from a worker thread, are
 merged into that one flush, and only the latest value of each binding is written. Bound lambdas
 are evaluated on the owner thread during the flush. Computed values, however, recompute on the
-thread that called `set()`; this is where the open defect **B-0002** lives (concurrent setters
+thread that called `set()`; this is where the open computed-concurrency defect lives (concurrent setters
 of the same computed can produce a false circular-dependency error and a stale value), which is
 why worker results should be handed over with `ui.post()`.
 
@@ -160,7 +160,7 @@ cannot cancel a native default action (use the SDK's `prevent_default` registrat
   event listener; the UI disposes itself when its window closes or the app shuts down.
   `dispose()` unsubscribes, closes bindings and stops the owner thread. Because the SDK has no
   way to remove an `on_shutdown` callback, registrations accumulate with many mount cycles
-  (**B-0003**).
+  (known open defect).
 - PowerShell: `Stop-NHKUi` unregisters document events and state subscriptions. A closed window
   is noticed on the next write (or immediately if the app handles `window.event`).
 - Neither library closes windows or the application, and neither disposes computed values:

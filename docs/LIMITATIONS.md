@@ -4,7 +4,7 @@ UI 0.1.1 is an early (pre-1.0) release. Its 0.1.1 packages passed the real-input
 
 **Known UI bugs recorded in the Project register:** Python `Computed` can falsely raise a circular dependency error and retain a stale value during concurrent updates; disposing many UI windows can accumulate SDK shutdown callbacks. Until fixed, serialize writes affecting the same computed state, use background worker handoff via `ui.post`, and avoid rapidly creating/discarding many UIs in long-lived applications.
 
-**Inputs placed directly in a column are 200px tall (0.1.1 stylesheet defect B-0014).** The built-in rule `.nhk-field { flex: 1 1 200px }` is meant for fields in a row, but in a column (`ui.column()`, `ui.stack()`, `Add-NHKUiColumn`) the 200px basis applies to the field's height, so a single input followed by more content leaves a large empty gap. Inputs inside a row or directly inside a card (a plain block) are not affected. Workaround: pass
+**Inputs placed directly in a column are 200px tall (0.1.1 stylesheet defect).** The built-in rule `.nhk-field { flex: 1 1 200px }` is meant for fields in a row, but in a column (`ui.column()`, `ui.stack()`, `Add-NHKUiColumn`) the 200px basis applies to the field's height, so a single input followed by more content leaves a large empty gap. Inputs inside a row or directly inside a card (a plain block) are not affected. Workaround: pass
 
 ```css
 .nhk-col > .nhk-field { flex: 0 0 auto; }

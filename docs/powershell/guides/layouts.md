@@ -58,7 +58,7 @@ Rows wrap: a labelled input or select is a flex item of at least 150 px that gro
 [`dashboard` example](https://github.com/nativehtmlkit/nativehtmlkit_ui/blob/main/examples/powershell/dashboard.ps1)
 shows six cards that reflow as you resize.
 
-## Fields directly in a column (known defect B-0014)
+## Fields directly in a column (known defect)
 
 The 0.1.1 stylesheet applies the row rule `flex: 1 1 200px` to fields placed directly in a
 column too, where the 200 px basis becomes the field's **height**: a labelled input followed by

@@ -89,7 +89,7 @@ A state bound to a UI may only be set on the runspace that started the UI (the *
 runspace*): in button callbacks, in SDK task `-OnCompleted`/`-OnFailed` callbacks, in
 notification callbacks, or in the script itself. From any other runspace the module throws
 `UI updates must run on the SDK owning runspace`. See [background work](background-work.md).
-Computed states are synchronous on the owner runspace; the Python defect B-0002 does not apply.
+Computed states are synchronous on the owner runspace; the Python computed-concurrency defect does not apply.
 
 ## Related
 

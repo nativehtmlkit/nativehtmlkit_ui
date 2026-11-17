@@ -418,12 +418,12 @@ with `on`; attribute values and text are encoded; `$false`/`$null` attributes ar
   or context-menu hook in the UI module. Use SDK events on `$ui.Document` if you need them.
 - There is no event queue: a long callback delays the next event (the SDK keeps pumping host
   requests while it waits).
-- **B-0014, fields directly in a column are 200 px tall.** The stylesheet rule
+- **Fields directly in a column are 200 px tall.** The stylesheet rule
   `.nhk-field { flex: 1 1 200px }` is meant for rows; in `Add-NHKUiColumn` the 200 px basis
   becomes the field's height. Fields in rows and cards are not affected. Workaround:
   `-ExtraCss '.nhk-col > .nhk-field { flex: 0 0 auto; }'` (see the
   [layouts guide](guides/layouts.md)).
-- The Python defects B-0002 and B-0003 do not apply: computed values are synchronous on the
+- The Python computed-concurrency and shutdown-callback defects do not apply: computed values are synchronous on the
   owner runspace and `Start-NHKUi` registers no application shutdown callback.
 
 See [limitations](../LIMITATIONS.md) for qualification status.

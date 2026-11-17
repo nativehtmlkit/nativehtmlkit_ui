@@ -44,10 +44,10 @@ Mounting from an event handler of another UI is allowed. Build the new UI comple
 - Closing the **last** window ends the application (Core asks for quit with reason
   `last_window`).
 
-## Limits (known defect B-0003)
+## Limits (known defect)
 
-Every `mount()` registers an application shutdown callback that cannot be removed (open defect
-**B-0003**). Cap the number of windows a long-running app creates, or reuse them; the example
+Every `mount()` registers an application shutdown callback that cannot be removed (open defect).
+Cap the number of windows a long-running app creates, or reuse them; the example
 allows three inspectors at a time.
 
 ## Clean up

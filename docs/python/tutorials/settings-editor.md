@@ -70,7 +70,7 @@ Run `uv run settings_editor.py` and edit the fields: the summary below follows e
 - The summary contains `<` and `>` around the e-mail address; `ui.text()` always escapes text,
   so this is safe.
 - The inputs are inside a card, so they keep their natural height. Labelled inputs placed
-  directly in a column need the B-0014 workaround from the [layouts guide](../guides/layouts.md).
+  directly in a column need the column field-height workaround from the [layouts guide](../guides/layouts.md).
 
 ## Step 2: load, validate, save and revert
 

@@ -7,7 +7,7 @@ points to complete, harness-verified examples. The same guides exist for PowerSh
 | Guide | You will learn |
 |---|---|
 | [Reactive state and computed values](reactive-state.md) | Model data as state, derive the rest, replace instead of mutate, subscribe for side effects |
-| [Layouts and the responsive grid](layouts.md) | Rows, columns, cards, grid breakpoints, density, the column field-height workaround (B-0014) |
+| [Layouts and the responsive grid](layouts.md) | Rows, columns, cards, grid breakpoints, density, the column field-height workaround |
 | [Forms, inputs and validation](forms-and-inputs.md) | Two-way binding, validation as computed state, guarded submit, loading and saving form data |
 | [Lists and conditional content](lists-and-conditional-content.md) | Conditional regions, text lists, the slot pool for rows with buttons |
 | [Theming and custom CSS](theming-and-custom-css.md) | Themes, density, design-token overrides, your own styles |

@@ -63,7 +63,7 @@ The font stack is `Inter, "Segoe UI Variable Text", "Segoe UI", "Noto Sans", Ari
 | `nhk-alert` | alert | Bordered box with a 3 px accent left border; `role="status"`. |
 | `nhk-button` + `nhk-primary`/`nhk-secondary`/`nhk-danger`/`nhk-quiet` | buttons | Height `--nhk-control-h`; primary uses accent; `:disabled` has opacity 0.45. |
 | `nhk-input`, `nhk-select` | input / select | `--nhk-panel-2` background; inputs are full width. |
-| `nhk-field`, `nhk-label` | labelled input/select wrapper | Field is a flex column (`flex: 1 1 200px`, `min-width: 150px`); label is muted, 0.9 em. In a column the 200px basis becomes height (defect B-0014); see [limitations](LIMITATIONS.md) for the workaround. |
+| `nhk-field`, `nhk-label` | labelled input/select wrapper | Field is a flex column (`flex: 1 1 200px`, `min-width: 150px`); label is muted, 0.9 em. In a column the 200px basis becomes height (known defect); see [limitations](LIMITATIONS.md) for the workaround. |
 | `nhk-checkrow`, `nhk-checkbox` | checkbox | Row with 8 px gap; checkbox 16 px with `accent-color`. |
 | `nhk-region`, `nhk-hidden` | `when()` / `Add-NHKUiWhen` | `nhk-hidden` is `display: none !important`. |
 | `nhk-list` | text list | Left padding 20 px; items 3 px padding. |

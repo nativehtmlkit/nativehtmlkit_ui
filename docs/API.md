@@ -92,12 +92,12 @@ Linux/Windows and Windows PowerShell 5.1 on Windows are the target hosts.
 
 ## Known issues
 
-- **B-0002 (Python):** `Computed` can falsely raise a circular-dependency error and keep a stale value
+- **Python, concurrent computed updates:** `Computed` can falsely raise a circular-dependency error and keep a stale value
   when its dependencies are set from several threads at once. Serialize such writes, for
   example through `ui.post()`.
-- **B-0003 (Python):** every `mount()` registers an application shutdown callback that cannot be
+- **Python, shutdown callbacks:** every `mount()` registers an application shutdown callback that cannot be
   removed; avoid creating and discarding many UIs in a long-running application.
-- **B-0014 (both languages):** labelled inputs placed directly in a column are 200 px tall;
+- **Both languages, fields in a column:** labelled inputs placed directly in a column are 200 px tall;
   workaround `.nhk-col > .nhk-field { flex: 0 0 auto; }` as extra CSS.
 
 Details: [Python reference, known defects](python/reference.md#known-defects) and

@@ -42,8 +42,8 @@ with Application.start(name="Hello UI") as app:
   your own CSS via `extra_css`.
 
 Dialogs, the clipboard, live bitmaps and window management are SDK features you call next to
-the UI. Known open defects: concurrent updates to one `Computed` from several threads (B-0002)
-and accumulating shutdown callbacks with many mount cycles (B-0003).
+the UI. Known open defects: concurrent updates to one `Computed` from several threads
+and accumulating shutdown callbacks with many mount cycles.
 
 ## Documentation
 

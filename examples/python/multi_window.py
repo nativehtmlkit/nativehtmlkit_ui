@@ -4,7 +4,7 @@ Teaches: several UI objects in one application, each in its own native window; b
 windows to the same State; opening a window from a button handler; tracking windows the user
 closes with app.on_window_event (marshalled to the UI owner with ui.post); closing a window
 from code. Each inspector is a new UI; mounting one registers an SDK shutdown callback, so this
-example caps the number of inspectors (see the B-0003 limitation).
+example caps the number of inspectors (see the shutdown-callback limitation).
 
 Run:  uv run multi_window.py      (uv add nativehtmlkit_ui)
 """

@@ -16,7 +16,7 @@ on the UI owner.
 Why `post()` and not `state.set()` directly from the worker? Setting a state from another
 thread is allowed and the window write still happens on the owner, but:
 
-- the open defect **B-0002** can corrupt a `Computed` whose dependencies are set from several
+- the open computed-concurrency defect can corrupt a `Computed` whose dependencies are set from several
   threads at once, and
 - doing all writes on the owner keeps your handlers and posted functions free of races.
 

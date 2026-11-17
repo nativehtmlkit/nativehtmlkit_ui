@@ -82,7 +82,7 @@ Dicts compare by content in Python, so the snapshot can be compared directly.
 
 States may be set from any thread; the window update always happens on the UI owner thread.
 However, a `Computed` whose dependencies are set from several threads at once is affected by the
-open defect **B-0002** (a false "circular dependency" error and a stale value). Make all writes
+open computed-concurrency defect (a false "circular dependency" error and a stale value). Make all writes
 that feed one computed on the UI owner: `ui.post(state.set, value)`. See
 [background work](background-work.md).
 

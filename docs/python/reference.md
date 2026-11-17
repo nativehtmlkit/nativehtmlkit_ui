@@ -464,17 +464,17 @@ dialog is unavailable) come from your own SDK calls and are not wrapped.
 
 These are recorded, open defects of 0.1.1 (see [limitations](../LIMITATIONS.md)):
 
-- **B-0002, `Computed` under concurrent updates.** When dependencies of the same computed are
+- **`Computed` under concurrent updates.** When dependencies of the same computed are
   set from several threads at the same time, a recomputation can falsely raise
   `RuntimeError("Circular computed-state dependency")` and keep a stale value. Serialize
   writes that affect the same computed: make them on the UI owner (`ui.post(state.set, value)`)
   or from a single worker thread.
-- **B-0003, shutdown callback retention.** Each `mount()` registers an
+- **Shutdown callback retention.** Each `mount()` registers an
   `Application.on_shutdown` callback, and the SDK offers no way to remove it. The callback holds
   the UI only weakly, but the registrations accumulate. Avoid creating and discarding many UIs
   in a long-running application; reuse windows or cap their number (as
   `examples/python/multi_window.py` does).
-- **B-0014, fields directly in a column are 200 px tall.** The stylesheet rule
+- **Fields directly in a column are 200 px tall.** The stylesheet rule
   `.nhk-field { flex: 1 1 200px }` is meant for rows; in `ui.column()` or `ui.stack()` the
   200 px basis becomes the field's height. Fields in rows and cards are not affected.
   Workaround: `extra_css=".nhk-col > .nhk-field, .nhk-stack > .nhk-field { flex: 0 0 auto; }"`
